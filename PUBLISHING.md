@@ -7,8 +7,11 @@ Thunderstore (the mod-manager catalog). Run everything from the repo root.
 
 - GitHub CLI authenticated (`gh auth login`, account `altpersona`, SSH remote).
 - Thunderstore account: log in at thunderstore.io with the GitHub account.
-- First package upload prompts to **create a team** — that team name becomes the
-  author namespace (`altpersona` → package listed as `altpersona-SunkenCryptTimer`).
+- Thunderstore team: **`StandardVibeware`** — the team name is the permanent author
+  namespace, so the package is listed as `StandardVibeware-SunkenCryptTimer`
+  (not `altpersona-...`; namespaces can never be renamed).
+- Service-account API token (`tss_...`, created under the team's Service Accounts
+  page) stored at `~/.config/thunderstore/api_token` (chmod 600, outside the repo).
 
 ## Every release
 
@@ -43,10 +46,20 @@ Thunderstore (the mod-manager catalog). Run everything from the repo root.
 
    (`gh release create` also creates the tag from HEAD.)
 
-4. **Upload to Thunderstore:** go to
-   [thunderstore.io/package/create](https://thunderstore.io/package/create) and upload
-   `SunkenCryptTimer-v<version>.zip`. The site validates the manifest and previews
-   the README before you commit the upload. Category: **Client-side**.
+4. **Publish to Thunderstore:**
+
+   ```
+   ./publish_thunderstore.sh
+   ```
+
+   Reads the token from `~/.config/thunderstore/api_token`, the version from
+   `manifest.json`, and publishes the zip in one call (team `StandardVibeware`,
+   community `valheim`, category `client-side`). Auth is `Authorization: Bearer`
+   with the service-account token — the Swagger docs' "Basic" scheme is wrong for
+   `tss_` tokens. Two HTTP gotchas are handled inside the script: Cloudflare 502s
+   the POST with curl's default User-Agent, and `Expect: 100-continue` must be
+   suppressed. A failed publish prints the API's error body; a duplicate version
+   is rejected server-side (bump first).
 
 5. Update `CHANGELOG.md` with what shipped (if not done in step 3's commit).
 
