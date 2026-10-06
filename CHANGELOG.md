@@ -1,5 +1,10 @@
 # CHANGELOG — valheimmer / InstancedTimer (SunkenCryptTimer through v1.1.8)
 
+## 2026-10-06 — v1.2.2: timer text +2 more points
+
+- v1.2.1's +2 over the status-text size was still too small (user field test);
+  StatusTextSizeBonus now +4.
+
 ## 2026-10-06 — v1.2.1: timer text a couple points larger
 
 - Field feedback on v1.2.0: the status-effect text size (adopted in v1.1.8) is too
