@@ -117,7 +117,8 @@ Requires the .NET SDK (6+) and a local Valheim install + BepInEx profile:
 
 `GameDir` is the folder containing `valheim_Data/`; `ProfileDir` is the folder
 containing `BepInEx/core`. Output: `SunkenCryptTimer/bin/Release/SunkenCryptTimer.dll`.
-`./package.sh` additionally builds the Thunderstore zip (requires `zip`).
+`./package.sh` additionally builds the Thunderstore zip (requires `zip`). For the
+full release/upload workflow see [PUBLISHING.md](PUBLISHING.md).
 
 ## Version compatibility
 
