@@ -20,6 +20,8 @@ namespace InstancedTimer
     internal static class HudLabel
     {
         private const string LabelName = "InstancedTimer.HudLabel";
+        // Points added to the status-effect text size (user-tuned: raw size too small).
+        private const float StatusTextSizeBonus = 2f;
 
         private static TextMeshProUGUI _label;
         private static readonly FieldInfo HudInstanceField =
@@ -67,7 +69,9 @@ namespace InstancedTimer
                 {
                     foreach (var tmp in template.GetComponentsInChildren<TMP_Text>(true))
                     {
-                        label.fontSize = tmp.fontSize;
+                        // Raw status-text size proved too small to read in the
+                        // field (user feedback on v1.2.0) - a couple points up.
+                        label.fontSize = tmp.fontSize + StatusTextSizeBonus;
                         _statusTextSizeApplied = true;
                         break;
                     }

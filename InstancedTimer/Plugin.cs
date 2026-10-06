@@ -17,7 +17,7 @@ namespace InstancedTimer
     {
         public const string PluginGuid = "lan124.InstancedTimer";
         public const string PluginName = "InstancedTimer";
-        public const string PluginVersion = "1.2.0";
+        public const string PluginVersion = "1.2.1";
 
         internal static ManualLogSource Log;
 

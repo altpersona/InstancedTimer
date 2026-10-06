@@ -1,5 +1,12 @@
 # CHANGELOG — valheimmer / InstancedTimer (SunkenCryptTimer through v1.1.8)
 
+## 2026-10-06 — v1.2.1: timer text a couple points larger
+
+- Field feedback on v1.2.0: the status-effect text size (adopted in v1.1.8) is too
+  small to read comfortably. The label now adds +2 points to the status-text size
+  (`StatusTextSizeBonus` in HudLabel.cs — tweak there and rebuild if it still needs
+  tuning).
+
 ## 2026-10-06 — release automation: Thunderstore publishing scripted, push-on-every-test-phase
 
 - `publish_thunderstore.sh`: publishes the packaged zip via the Thunderstore API in one

@@ -15,7 +15,7 @@
     <ImplicitUsings>disable</ImplicitUsings>
     <AssemblyName>InstancedTimer</AssemblyName>
     <RootNamespace>InstancedTimer</RootNamespace>
-    <Version>1.2.0</Version>
+    <Version>1.2.1</Version>
     <DebugType>embedded</DebugType>
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
