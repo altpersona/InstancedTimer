@@ -17,7 +17,7 @@ namespace SunkenCryptTimer
     {
         public const string PluginGuid = "lan124.SunkenCryptTimer";
         public const string PluginName = "SunkenCryptTimer";
-        public const string PluginVersion = "1.1.4";
+        public const string PluginVersion = "1.1.5";
 
         internal static ManualLogSource Log;
 
@@ -34,6 +34,9 @@ namespace SunkenCryptTimer
         internal static ConfigEntry<int> CeFallbackResetDays;
         internal static ConfigEntry<bool> CeRingEnabled;
         internal static ConfigEntry<float> CeRingShowRadius;
+        // How the HUD line names the dungeon instance (F1-configurable).
+        internal enum InstanceNaming { Type, NameAndZone, Name, Zone }
+        internal static ConfigEntry<InstanceNaming> CeInstanceNaming;
 
         private void Awake()
         {
@@ -59,6 +62,10 @@ namespace SunkenCryptTimer
             CeRingShowRadius = Config.Bind("Rings", "ShowRadiusMeters", 100f,
                 "Show a dungeon's ring while the player is within this distance of its entrance " +
                 "(float, meters). 100 matches Venture Location Reset's own reset-trigger distance.");
+            CeInstanceNaming = Config.Bind("HUD", "InstanceNaming", InstanceNaming.NameAndZone,
+                "How the timer names the dungeon: Type (vanilla type name), NameAndZone " +
+                "(\"Odin's Tomb (-70,-21)\" - name deterministic per instance, zone readable on " +
+                "the minimap), Name, or Zone.");
 
             gameObject.AddComponent<Tracker>();
 

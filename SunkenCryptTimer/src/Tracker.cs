@@ -90,8 +90,8 @@ namespace SunkenCryptTimer
             double remainingDays = lastResetDay + resetDays - CurrentFractionalDay();
 
             string text = remainingDays > 0d
-                ? $"{ResetTimer.PrettyName(name)} - resets in {FormatRemaining(remainingDays)}"
-                : $"{ResetTimer.PrettyName(name)} - reset ready (regenerates on approach)";
+                ? $"{DisplayName(name, result.Value.Uid, result.Value.Position)} - resets in {FormatRemaining(remainingDays)}"
+                : $"{DisplayName(name, result.Value.Uid, result.Value.Position)} - reset ready (regenerates on approach)";
 
             if (SunkenCryptTimerPlugin.CeDebug.Value)
             {
@@ -229,6 +229,27 @@ namespace SunkenCryptTimer
         /// the reflection on m_totalSeconds; the constant +1 offset cancels out between
         /// the stored and current values, so the countdown is exact either way.
         /// </summary>
+        /// <summary>
+        /// HUD display name for a dungeon instance, per the InstanceNaming
+        /// config: type name, generated proper-noun name + zone coords, name
+        /// only, or zone only. Name is deterministic - same uid, same name,
+        /// every machine and session.
+        /// </summary>
+        private static string DisplayName(string prefabName, long uid, Vector3 position)
+        {
+            switch (SunkenCryptTimerPlugin.CeInstanceNaming.Value)
+            {
+                case SunkenCryptTimerPlugin.InstanceNaming.Name:
+                    return DungeonNames.Name(uid, prefabName);
+                case SunkenCryptTimerPlugin.InstanceNaming.Zone:
+                    return $"{ResetTimer.PrettyName(prefabName)} {DungeonNames.Zone(position)}";
+                case SunkenCryptTimerPlugin.InstanceNaming.NameAndZone:
+                    return $"{DungeonNames.Name(uid, prefabName)} {DungeonNames.Zone(position)}";
+                default:
+                    return ResetTimer.PrettyName(prefabName);
+            }
+        }
+
         internal static double CurrentFractionalDay()
         {
             long dayLength = EnvMan.instance.m_dayLengthSec;
