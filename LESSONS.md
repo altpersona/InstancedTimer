@@ -56,3 +56,64 @@ Fix: `_radiusCache` stores a value only after live confirmation (scene-root
 `DungeonGenerator` at y≥4000 within bounds); unconfirmed values recompute each tick.
 Prevent: Never make "cheap substitute" reads terminal when a "ground truth" read exists
 but may be lazily available.
+
+## [2026-10-06] Thunderstore API: tss_ tokens are Bearer, and a missing trailing slash is the real 502
+Symptom: POST /api/experimental/submission/upload/ returned Cloudflare 502 (HTML) from
+a script while an "identical" manual curl succeeded; Swagger docs claim HTTP Basic.
+Root cause: TWO separate issues conflated during debugging. (1) tss_ service-account
+tokens authenticate via `Authorization: Bearer <token>` (see Thunderstore source
+account/authentication.py), not Basic — the docs' securityDefinitions are wrong.
+(2) The script's URL lacked the trailing slash; Django's APPEND_SLASH redirect behind
+Cloudflare collapses into a 502 for this POST. The User-Agent/Expect:100-continue
+headers were NOT the fix (harmless, kept in script).
+Fix: Bearer auth + exact URL with trailing slash. Verified by re-running against a
+published version: correct transport returns the API's 400 "version already exists".
+Prevent: Copy endpoint URLs verbatim from the OpenAPI spec (/?format=openapi — the
+docs page itself is a JS shell). Note: package deprecation is blocked for service
+accounts ("Service accounts are unable to perform this action") — browser-only.
+
+## [2026-10-06] Never clone another mod's UI panels when adding HUD elements (v1.1.5 regression)
+Symptom: Timer label appeared twice (red top-center + brown right side, partly
+off-screen), stale copies persisted after leaving the area, and every recreation logged
+"Can't remove CanvasRenderer because TextMeshProUGUI depends on it" — 34 label
+creations in one session (should be 1 per world).
+Root cause: HudLabel cloned a donor label (scene-scan fallback picked other mods'
+'Name'/'TimeText' panels) as its SIBLING and stripped non-TMP components (incl. the
+CanvasRenderer TMP requires). The clone inherited the panel's color/anchors (panel-
+relative top-center ≠ screen top-center → off-screen) and died or got orphaned when
+those panels rebuilt/pooled — orphans unreachable by Hide().
+Fix: Build the label from scratch (AddComponent auto-adds CanvasRenderer — nothing to
+strip) as a direct child of the HUD canvas root; take only the FONT from a donor;
+fixed style (size/color) from one canonical element; sweep stale copies by name.
+Prevent: UI mods own their panels' lifecycle — never parent into (or clone) foreign
+UI; anchor to the canvas root so anchors mean screen coordinates.
+
+## [2026-10-06] Location prefabs resolve through ZoneSystem, not ZNetScene.GetPrefab
+Symptom: Ground locations (Grave1, SwampHut*, InfestedTree01, SwampRuin1) each got a
+phantom 45.3 m ring — the exact crypt radius.
+Root cause: `ZNetScene.GetPrefab(name)` does not resolve location prefabs reliably, so
+the ring-radius fallback borrowed a NEIGHBOURING crypt's DungeonGenerator (dense swamp
+= one always within the 120 m bound). Location prefabs actually live in
+`ZoneSystem.instance.m_locations` as `SoftReference<GameObject>` (lazy-loaded; use
+`.IsLoaded` / `.Asset`; requires a csproj reference to SoftReferenceableAssets.dll —
+the SoftReference<> type lives there, CS0012 otherwise).
+Fix: ZoneRing.FindLocationPrefab builds a name→Location registry from
+ZoneSystem.m_locations (GetPrefab kept as secondary); resolved ground locations
+correctly return radius 0 (m_hasInterior=false → no ring). Generator borrowing now only
+happens for genuinely unresolvable names ("Dungeon" placeholder, DG_*).
+Prevent: For location-type questions, query ZoneSystem's registry first; ZNetScene's
+prefab index is for networked prefabs, not authoritative for zone locations.
+
+## [2026-10-06] VLR stamps EVERY zone location — plan UI/naming for all of them
+Symptom: The HUD timer fired constantly while traveling ("kept updating after leaving
+the swamp"), showing raw prefab names like "Grave1 (-435,-142)".
+Root cause: On servers with default VLR config (IgnoreList near-empty), every location
+instance — runestones, graves, shipwrecks, swamp huts, ruins, abandoned houses, dolmens
+— carries VV_LastReset and resets on the same global timer. The mod's dungeon-centric
+naming left all of them ugly.
+Fix: PrettyNames covers vanilla ground POIs + prefix rules (Runestone_*→Runestone,
+StoneTowerRuins*→Ruined Tower); the label still shows all tracked features by design
+(user wants them named, not hidden).
+Prevent: When building against VLR data, enumerate what the SERVER actually stamps
+(check its config + the client LogOutput.log "tracked dungeon:" lines), not just the
+dungeon types VLR's per-type config implies.

@@ -1,5 +1,22 @@
 # CHANGELOG — valheimmer / InstancedTimer (SunkenCryptTimer through v1.1.8)
 
+## 2026-10-06 — release automation: Thunderstore publishing scripted, push-on-every-test-phase
+
+- `publish_thunderstore.sh`: publishes the packaged zip via the Thunderstore API in one
+  call (legacy `submission/upload/` endpoint: multipart file + metadata → published;
+  team `StandardVibeware`, community `valheim`, category `client-side`). Token at
+  `~/.config/thunderstore/api_token` (tss_ service account, Bearer auth). Hard-won
+  HTTP facts, handled in-script: Swagger's "Basic" scheme is wrong for tss_ tokens;
+  the URL's trailing slash is mandatory (Django append-slash redirect behind Cloudflare
+  = 502); live endpoint returns 200 (docs say 201). Package deprecation is blocked for
+  service accounts — browser-only step.
+- Standing procedure (user instruction): every build deployed for user testing
+  automatically gets commit → push → GitHub release → Thunderstore publish. Full flow
+  documented in PUBLISHING.md; also stored in Claude project memory.
+- v1.1.7 was the first Thunderstore listing (published manually via the same API);
+  v1.1.8 published during script debugging (manual curl — the script had the
+  trailing-slash bug); v1.2.0 was the script's first clean end-to-end publish.
+
 ## 2026-10-06 — v1.2.0: renamed SunkenCryptTimer → InstancedTimer
 
 - The mod outgrew its name: since v1.1.7 it labels every VLR-tracked location
