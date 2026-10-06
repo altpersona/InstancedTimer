@@ -19,7 +19,7 @@ namespace SunkenCryptTimer
     {
         private const int MaxRings = 4;
         private const float EntryTimeoutSeconds = 30f;
-        private const float SkyY = 4000f;
+        internal const float SkyY = 4000f;
         private const string TemplatePrefabPrimary = "piece_workbench";
         private const string TemplatePrefabFallback = "guard_stone";
 
@@ -219,7 +219,13 @@ namespace SunkenCryptTimer
             var location = prefab != null ? prefab.GetComponent<Location>() : null;
             if (location == null || !location.m_hasInterior)
             {
-                return 0f;
+                // Name unresolved (placeholder "Dungeon" or a "DG_*" generator
+                // name): the live root generator near the feature IS the
+                // interior - take the radius straight from it.
+                var live = FindRootGenerator(featurePos, 250f);
+                return live != null && live.transform.position.y >= SkyY
+                    ? HalfDiagonal(live.m_zoneSize)
+                    : 0f;
             }
 
             if (_radiusCache.TryGetValue(prefabName, out float cached))
@@ -266,9 +272,11 @@ namespace SunkenCryptTimer
 
         /// <summary>
         /// First scene-root DungeonGenerator within bound (horizontal) of center -
-        /// VLR's GetDungeonGeneratorInBounds, used to confirm prefab radius values.
+        /// VLR's GetDungeonGeneratorInBounds, used to confirm prefab radius values
+        /// and as the fallback name/radius source for instanced dungeons whose
+        /// proxy carries no name (VLR regen leaves instance ref and ZDO empty).
         /// </summary>
-        private static DungeonGenerator FindRootGenerator(Vector3 center, float bound)
+        internal static DungeonGenerator FindRootGenerator(Vector3 center, float bound)
         {
             foreach (var obj in SceneManager.GetActiveScene().GetRootGameObjects())
             {

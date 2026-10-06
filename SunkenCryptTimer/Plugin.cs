@@ -17,7 +17,7 @@ namespace SunkenCryptTimer
     {
         public const string PluginGuid = "lan124.SunkenCryptTimer";
         public const string PluginName = "SunkenCryptTimer";
-        public const string PluginVersion = "1.1.2";
+        public const string PluginVersion = "1.1.3";
 
         internal static ManualLogSource Log;
 

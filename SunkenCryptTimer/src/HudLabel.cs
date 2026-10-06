@@ -99,6 +99,17 @@ namespace SunkenCryptTimer
                 }
             }
 
+            // HUD mods (e.g. MyLittleUI) can replace the vanilla HUD, leaving
+            // its fonts never loaded - scan every ACTIVE text in the scene.
+            foreach (var tmp in UnityEngine.Object.FindObjectsOfType<TextMeshProUGUI>())
+            {
+                if (IsUsable(tmp.font))
+                {
+                    WarnOnce($"Event font not usable; using font from scene label '{tmp.name}'.");
+                    return tmp.font;
+                }
+            }
+
             if (IsUsable(TMP_Settings.defaultFontAsset))
             {
                 WarnOnce("No usable font in HUD; using TMP_Settings.defaultFontAsset.");
@@ -113,10 +124,10 @@ namespace SunkenCryptTimer
             return null;
         }
 
-        /// <summary>A font is usable only if its atlas texture is actually loaded.</summary>
+        /// <summary>A font is usable only if an atlas texture is actually loaded.</summary>
         private static bool IsUsable(TMP_FontAsset font)
         {
-            return font != null && font.atlas != null;
+            return font != null && (font.atlas != null || font.atlasTexture != null);
         }
 
         private static bool _fontWarned;

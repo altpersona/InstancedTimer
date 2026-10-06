@@ -175,6 +175,19 @@ namespace SunkenCryptTimer
                     prefabName = ResolveNameFromZoneSystem(proxy.transform.position);
                     via = "zonesystem";
                 }
+                if (prefabName == "Dungeon")
+                {
+                    // Zone-system match failed (client dicts are thin): the
+                    // dungeon's own live generator identifies it - its
+                    // GameObject is "DG_SunkenCrypt(Clone)" etc.
+                    var gen = ZoneRing.FindRootGenerator(proxy.transform.position, 150f);
+                    if (gen != null && gen.transform.position.y >= ZoneRing.SkyY)
+                    {
+                        int clone = gen.name.IndexOf("(Clone)", StringComparison.Ordinal);
+                        prefabName = clone >= 0 ? gen.name.Substring(0, clone) : gen.name;
+                        via = "generator";
+                    }
+                }
                 if (_loggedNames.Add((int)zdo.m_uid.ID))
                 {
                     SunkenCryptTimerPlugin.Log.LogInfo(

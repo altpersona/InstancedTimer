@@ -15,7 +15,7 @@
     <ImplicitUsings>disable</ImplicitUsings>
     <AssemblyName>SunkenCryptTimer</AssemblyName>
     <RootNamespace>SunkenCryptTimer</RootNamespace>
-    <Version>1.1.2</Version>
+    <Version>1.1.3</Version>
     <DebugType>embedded</DebugType>
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>

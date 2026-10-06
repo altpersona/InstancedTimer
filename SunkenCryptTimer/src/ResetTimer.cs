@@ -73,6 +73,11 @@ namespace SunkenCryptTimer
             { "PlaceofMystery3", "Place of Mystery" },
             { "VV_CopperTinCave", "Copper/Tin Cave" },
             { "VV_SilverCave", "Silver Cave" },
+            // Generator GameObject names (fallback when a dungeon's location
+            // name is unresolvable - see Tracker/generator via).
+            { "DG_SunkenCrypt", "Sunken Crypt" },
+            { "DG_BurialChambers", "Burial Chamber" },
+            { "DG_TrollCave", "Troll Cave" },
         };
 
         internal static string PrettyName(string prefabName) =>
