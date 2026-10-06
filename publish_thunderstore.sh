@@ -18,7 +18,7 @@ TOKEN_FILE="${TS_TOKEN_FILE:-$HOME/.config/thunderstore/api_token}"
 TEAM="StandardVibeware"
 COMMUNITY="valheim"
 CATEGORIES="client-side"
-API="https://thunderstore.io/api/experimental/submission/upload"
+API="https://thunderstore.io/api/experimental/submission/upload/"
 
 if ! [ -f "$TOKEN_FILE" ]; then
     echo "token missing: $TOKEN_FILE (create it with a service-account token)" >&2
