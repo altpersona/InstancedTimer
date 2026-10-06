@@ -1,5 +1,20 @@
 # CHANGELOG — valheimmer / SunkenCryptTimer
 
+## 2026-10-06 — GitHub publish + Thunderstore packaging
+
+- Public repo created: https://github.com/altpersona/SunkenCryptTimer (MIT license,
+  gh CLI authenticated by user over device flow, SSH remote via uploaded ed25519 key).
+  Private/local files kept out via .gitignore: DEV_NOTES.md, TODO.md, deploy.sh,
+  setup-local-server.py, .claude/, build artifacts (leak scan: server IP/local paths
+  only ever lived in those).
+- Release v1.1.0 published with assets `SunkenCryptTimer-v1.1.0.zip` (Thunderstore
+  format: manifest+README+icon+CHANGELOG at root, DLL under Plugins/) and the raw DLL.
+- README rewritten user-facing (requirements matrix, install, usage incl. VLR
+  approach-trigger semantics, config table, build-from-source, version compatibility).
+- `package.sh` (builds the zip), `tools/make_icon.py` (256×256 icon: timer ring +
+  arched crypt door), manifest description trimmed to 204/250 chars, website_url set
+  to the GitHub repo. Thunderstore upload itself is the remaining user step (TODO.md).
+
 ## 2026-10-05 — v1.1.0: zone rings + deep VLR research
 
 - **Research session (all verified against VLR master source, the server-synced config,
