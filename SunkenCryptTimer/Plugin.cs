@@ -17,7 +17,7 @@ namespace SunkenCryptTimer
     {
         public const string PluginGuid = "lan124.SunkenCryptTimer";
         public const string PluginName = "SunkenCryptTimer";
-        public const string PluginVersion = "1.1.5";
+        public const string PluginVersion = "1.1.7";
 
         internal static ManualLogSource Log;
 
@@ -50,7 +50,8 @@ namespace SunkenCryptTimer
             CeUpdateInterval = Config.Bind("HUD", "UpdateIntervalSeconds", 1f,
                 "How often to rescan for nearby dungeons (float, seconds). 1 is plenty.");
             CeHudOffsetY = Config.Bind("HUD", "HudOffsetY", 170f,
-                "Vertical offset of the timer text from the top edge of the screen (float, pixels).");
+                "Vertical offset of the right-aligned timer text from the top edge of the screen " +
+                "(float, pixels). Increase if it overlaps the minimap or other right-side UI.");
             CeFallbackResetDays = Config.Bind("Timers", "FallbackResetDays", 10,
                 "Assumed reset interval (in-game days) when Venture Location Reset is not installed on this " +
                 "client and its synced config cannot be read. Set this to match the server you play on. " +

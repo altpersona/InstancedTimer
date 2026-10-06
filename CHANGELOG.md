@@ -1,5 +1,55 @@
 # CHANGELOG — valheimmer / SunkenCryptTimer
 
+## 2026-10-06 — v1.1.7: right-side label, friendly ground-feature names, no rings on graves
+
+- HUD label moved from top-center to the top-right corner (user preference; the
+  top-center spot collides with event/notice text). Right-aligned, anchored 20 px
+  from the right edge; word wrap on with the rect width clamped to the canvas, so
+  long lines ("Odin's Tomb (-435,-142) - resets in 9d 3h") wrap to extra lines
+  growing downward instead of running off the screen. HudOffsetY now means the
+  offset below the top edge on the right side - raise it if it overlaps the
+  minimap or right-side UI mods.
+- Field log showed VLR stamps nearly every zone location on the Stormer server
+  (Grave1, InfestedTree01, SwampHut1/2/5, SwampRuin1, StoneTower1,
+  StoneTowerRuins09, Dolmen01, ShipSetting01, Runestone_*, WoodHouse2/4/5,
+  Crypt4, ...), so the timer label was firing for all of them with raw prefab
+  names ("Grave1 (-435,-142) - resets in ...") - and kept cycling the whole way
+  home through meadows, which is why the text "kept updating after leaving the
+  swamp". Ground features now get friendly names (Grave, Infested Tree, Swamp
+  Hut, Swamp Ruin, Stone Tower, Ruined Tower, Shipwreck, Dolmen, Runestone,
+  Abandoned House, Goblin Camp); unknown Runestone_*/StoneTowerRuins* variants
+  collapse by prefix.
+- Ring bug from the same log: ground features (Grave1, InfestedTree01,
+  SwampHut2, SwampRuin1) each got a phantom 45.3 m ring - the same radius as
+  crypts. ZNetScene.GetPrefab does not resolve their location prefabs, so the
+  radius fallback borrowed a neighbouring crypt's dungeon generator (dense
+  swamp = always one within the 120 m bound). Location prefabs now resolve
+  through ZoneSystem's own location registry (GetPrefab kept as secondary), so
+  ground features correctly resolve to "no ring"; the generator fallback only
+  remains for genuinely unresolvable names ("Dungeon" placeholder, DG_*).
+
+## 2026-10-06 — v1.1.6: fix duplicate HUD labels (v1.1.5 field regression)
+
+- First field session with v1.1.5's clone-based label showed timer text twice (red
+  top-center + brown right side, sometimes running off the right screen edge) with
+  copies persisting long after leaving the dungeon. Session log: "HUD label ready"
+  fired 34 times in one session (should be once per world), sources alternating
+  between a HUD mod's 'Name' and 'TimeText' panels, each creation followed by
+  "Can't remove CanvasRenderer because TextMeshProUGUI depends on it".
+- Cause: the label was created by cloning some other panel's text as its SIBLING
+  and stripping non-TMP components (including the CanvasRenderer TMP needs).
+  Parenting into foreign panels means the label inherits their color (brown/red),
+  anchors to the panel's rect instead of the screen (off-screen), and dies or
+  gets orphaned when those panels rebuild/pool — orphaned copies are unreachable
+  by Hide(), hence the persistent text.
+- Fix: only the FONT is taken from a donor label (event-name font if loaded, else
+  any actively rendering label). The label itself is built from scratch as a
+  direct child of the HUD canvas root — true top-center-of-screen anchoring, no
+  component stripping, no CanvasRenderer errors. Style (size + color) comes
+  consistently from the event-name element instead of whatever panel donated the
+  font. Stale copies from earlier HUD rebuilds are swept by name on recreation so
+  only one label can ever exist.
+
 ## 2026-10-06 — v1.1.2: fix invisible HUD text + missing rings on dedicated servers
 
 - First real-server test (Stormer dedicated server, Valheim 1.0.16) showed neither

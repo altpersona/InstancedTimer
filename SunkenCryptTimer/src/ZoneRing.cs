@@ -137,6 +137,7 @@ namespace SunkenCryptTimer
 
             _entries.Clear();
             _template = null;
+            _locationPrefabs = null; // rebuilt from the new world's ZoneSystem
 
             var prefab = ZNetScene.instance.GetPrefab(TemplatePrefabPrimary) ??
                 ZNetScene.instance.GetPrefab(TemplatePrefabFallback);
@@ -222,8 +223,7 @@ namespace SunkenCryptTimer
 
         private static float ComputeRadius(string prefabName, Vector3 featurePos)
         {
-            var prefab = ZNetScene.instance.GetPrefab(prefabName);
-            var location = prefab != null ? prefab.GetComponent<Location>() : null;
+            var location = FindLocationPrefab(prefabName);
             if (location == null || !location.m_hasInterior)
             {
                 if (location != null)
@@ -281,6 +281,40 @@ namespace SunkenCryptTimer
         private static DungeonGenerator FindPrefabGenerator(GameObject interiorPrefab)
         {
             return interiorPrefab != null ? interiorPrefab.GetComponentInChildren<DungeonGenerator>() : null;
+        }
+
+        // Location prefab registry built from ZoneSystem's own location list,
+        // with ZNetScene.GetPrefab as secondary. ZNetScene alone did not
+        // resolve ground-location prefabs in the field (v1.1.5: every Grave/
+        // SwampHut/InfestedTree "resolved" to null, fell into the generator
+        // fallback below and borrowed a neighbouring crypt's 45 m radius).
+        // Location prefabs are SoftReferences that load lazily, so a name
+        // miss rebuilds the registry once before giving up on it.
+        private static Dictionary<string, Location> _locationPrefabs;
+
+        private static Location FindLocationPrefab(string name)
+        {
+            if (_locationPrefabs == null || !_locationPrefabs.ContainsKey(name))
+            {
+                _locationPrefabs = new Dictionary<string, Location>();
+                foreach (var zoneLocation in ZoneSystem.instance.m_locations)
+                {
+                    var prefabRef = zoneLocation.m_prefab;
+                    if (prefabRef == null || !prefabRef.IsLoaded) continue;
+                    var prefab = prefabRef.Asset;
+                    var loc = prefab != null ? prefab.GetComponent<Location>() : null;
+                    if (loc != null && !_locationPrefabs.ContainsKey(prefab.name))
+                    {
+                        _locationPrefabs.Add(prefab.name, loc);
+                    }
+                }
+            }
+            if (_locationPrefabs.TryGetValue(name, out var found))
+            {
+                return found;
+            }
+            var netPrefab = ZNetScene.instance.GetPrefab(name);
+            return netPrefab != null ? netPrefab.GetComponent<Location>() : null;
         }
 
         /// <summary>

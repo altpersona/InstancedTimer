@@ -5,13 +5,22 @@ using UnityEngine;
 namespace SunkenCryptTimer
 {
     /// <summary>
-    /// Single-line HUD text label showing the dungeon reset countdown, styled after
-    /// the game's own HUD text (font, size and color are copied from the event-name
-    /// text element so it matches the active UI/skin mods). Lazily created and
-    /// recreated automatically if the HUD is rebuilt (world transitions).
+    /// Right-aligned HUD text label showing the nearest tracked feature's reset
+    /// countdown, anchored below the top-right corner of the screen (clear of the
+    /// top-center event/notice area). Styling comes from the event-name text (font
+    /// size and color; the font itself from any actively rendering HUD label, since
+    /// the event name's font can be an unloaded asset). Built from scratch as a
+    /// direct child of the HUD canvas - never parented into another mod's panel
+    /// (v1.1.5 cloned panels' labels as siblings, which scattered stale copies
+    /// across the screen when those panels were rebuilt or pooled). Long text
+    /// wraps to extra lines inside a width-clamped rect, so it can never run off
+    /// the screen. Lazily created and recreated automatically if the HUD is
+    /// rebuilt (world transitions).
     /// </summary>
     internal static class HudLabel
     {
+        private const string LabelName = "SunkenCryptTimer.HudLabel";
+
         private static TextMeshProUGUI _label;
         private static readonly FieldInfo HudInstanceField =
             typeof(Hud).GetField("m_instance", BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
@@ -51,62 +60,80 @@ namespace SunkenCryptTimer
             var hud = HudInstance;
             if (hud == null || hud.m_eventName == null) return null;
 
-            // Source label: the event-name text only if it is actually being
-            // rendered; otherwise any live label on an active canvas (HUD mods
+            // Font donor: the event-name text only if its font is actually
+            // loaded; otherwise any live label on an active canvas (HUD mods
             // can leave the whole vanilla HUD disabled with unloaded fonts).
-            var source = hud.m_eventName;
-            if (!(source.isActiveAndEnabled && IsUsable(source.font)))
+            // Only the FONT is taken from the donor - the label itself is
+            // never cloned or parented into the donor's panel.
+            var donor = hud.m_eventName;
+            if (!IsUsable(donor.font))
             {
-                source = null;
+                donor = null;
                 foreach (var tmp in UnityEngine.Object.FindObjectsOfType<TextMeshProUGUI>())
                 {
                     if (tmp.isActiveAndEnabled && IsUsable(tmp.font) &&
                         tmp.canvas != null && tmp.canvas.isActiveAndEnabled)
                     {
-                        source = tmp;
+                        donor = tmp;
                         break;
                     }
                 }
-                if (source == null)
+                if (donor == null)
                 {
-                    SunkenCryptTimerPlugin.Log.LogWarning("No live HUD label to clone from yet; retrying next update.");
+                    SunkenCryptTimerPlugin.Log.LogWarning("No live HUD label to take a font from yet; retrying next update.");
                     return null; // retried from Show() on later ticks
                 }
-                SunkenCryptTimerPlugin.Log.LogWarning($"HUD label cloned from '{source.name}' (canvas '{source.canvas.name}').");
+                SunkenCryptTimerPlugin.Log.LogWarning($"HUD label font taken from '{donor.name}' (canvas '{donor.canvas.name}').");
             }
 
-            // Clone the live label: inherits its font (loaded), material and
-            // canvas - built from scratch, a label on a HUD-mod-disabled
-            // canvas renders nothing regardless of font.
-            var go = UnityEngine.Object.Instantiate(source.gameObject, source.transform.parent, false);
-            go.name = nameof(SunkenCryptTimer);
-            foreach (Transform child in go.transform)
+            // Sweep stale labels from earlier HUD rebuilds so exactly one can
+            // ever exist (defense in depth: nothing parents into panels now,
+            // but a leftover from a pre-1.1.6 session cannot survive either).
+            foreach (var tmp in UnityEngine.Object.FindObjectsOfType<TextMeshProUGUI>())
             {
-                UnityEngine.Object.Destroy(child.gameObject);
-            }
-            foreach (var comp in go.GetComponents<Component>())
-            {
-                if (!(comp is Transform) && !(comp is RectTransform) && !(comp is TextMeshProUGUI))
+                if (tmp.name == LabelName)
                 {
-                    UnityEngine.Object.Destroy(comp);
+                    UnityEngine.Object.Destroy(tmp.gameObject);
                 }
             }
 
+            // Parent to a live full-screen canvas: the HUD's own when it is
+            // active (anchors then mean "top center of the screen"), else the
+            // donor's (a canvas with a rendering label on it).
+            var canvas = hud.gameObject.activeInHierarchy && hud.m_eventName.canvas != null
+                ? hud.m_eventName.canvas
+                : donor.canvas;
+
+            // Built from scratch: AddComponent auto-adds the CanvasRenderer
+            // TMP requires - nothing to strip (stripping a clone's components
+            // produced "Can't remove CanvasRenderer" errors every recreation).
+            var go = new GameObject(LabelName, typeof(RectTransform), typeof(TextMeshProUGUI));
+            go.transform.SetParent(canvas.transform, false);
+
             var rect = (RectTransform)go.transform;
-            rect.anchorMin = new Vector2(0.5f, 1f);
-            rect.anchorMax = new Vector2(0.5f, 1f);
-            rect.pivot = new Vector2(0.5f, 1f);
-            rect.anchoredPosition = new Vector2(0f, -SunkenCryptTimerPlugin.CeHudOffsetY.Value);
-            rect.sizeDelta = new Vector2(900f, 30f);
+            rect.anchorMin = new Vector2(1f, 1f);
+            rect.anchorMax = new Vector2(1f, 1f);
+            rect.pivot = new Vector2(1f, 1f);
+            rect.anchoredPosition = new Vector2(-20f, -SunkenCryptTimerPlugin.CeHudOffsetY.Value);
+            // Wide enough for the longest expected line, but clamped to the
+            // canvas width; with wrapping on, anything longer breaks to new
+            // lines growing downward instead of running off the left edge.
+            var canvasRect = (RectTransform)canvas.transform;
+            rect.sizeDelta = new Vector2(Mathf.Min(700f, canvasRect.rect.width - 40f), 30f);
 
             _label = go.GetComponent<TextMeshProUGUI>();
-            _label.fontSize = source.fontSize;
-            _label.color = source.color;
-            _label.alignment = TextAlignmentOptions.Center;
-            _label.enableWordWrapping = false;
+            _label.font = donor.font;
+            _label.fontSize = donor.fontSize;
+            // Fixed style from the event-name element: inheriting the donor's
+            // color made the timer take on whatever color the donating panel
+            // used (brown clock text, red name text) and change with it.
+            _label.color = hud.m_eventName.color;
+            _label.alignment = TextAlignmentOptions.Right;
+            _label.enableWordWrapping = true;
+            _label.overflowMode = TextOverflowModes.Overflow; // wrapped lines grow downward
             _label.raycastTarget = false;
 
-            SunkenCryptTimerPlugin.Log.LogInfo($"HUD label ready (from '{source.name}').");
+            SunkenCryptTimerPlugin.Log.LogInfo($"HUD label ready on canvas '{canvas.name}' (font from '{donor.name}').");
             return _label;
         }
 

@@ -15,7 +15,7 @@
     <ImplicitUsings>disable</ImplicitUsings>
     <AssemblyName>SunkenCryptTimer</AssemblyName>
     <RootNamespace>SunkenCryptTimer</RootNamespace>
-    <Version>1.1.5</Version>
+    <Version>1.1.7</Version>
     <DebugType>embedded</DebugType>
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
@@ -38,6 +38,12 @@
     </Reference>
     <Reference Include="assembly_utils">
       <HintPath>$(ManagedDir)/assembly_utils.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <!-- ZoneSystem.ZoneLocation.m_prefab is a SoftReference<GameObject>; the
+         generic type lives in this assembly. -->
+    <Reference Include="SoftReferenceableAssets">
+      <HintPath>$(ManagedDir)/SoftReferenceableAssets.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="UnityEngine">

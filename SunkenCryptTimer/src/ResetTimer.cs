@@ -78,10 +78,41 @@ namespace SunkenCryptTimer
             { "DG_SunkenCrypt", "Sunken Crypt" },
             { "DG_BurialChambers", "Burial Chamber" },
             { "DG_TrollCave", "Troll Cave" },
+            // Ground locations VLR also stamps and resets on a default server;
+            // labeled on the HUD like dungeons but never ringed (ZoneRing).
+            { "Grave1", "Grave" },
+            { "Grave2", "Grave" },
+            { "Grave3", "Grave" },
+            { "InfestedTree01", "Infested Tree" },
+            { "SwampHut1", "Swamp Hut" },
+            { "SwampHut2", "Swamp Hut" },
+            { "SwampHut3", "Swamp Hut" },
+            { "SwampHut4", "Swamp Hut" },
+            { "SwampHut5", "Swamp Hut" },
+            { "SwampRuin1", "Swamp Ruin" },
+            { "StoneTower1", "Stone Tower" },
+            { "ShipSetting01", "Shipwreck" },
+            { "ShipSetting02", "Shipwreck" },
+            { "Dolmen01", "Dolmen" },
+            { "GoblinCamp1", "Goblin Camp" },
+            { "WoodHouse1", "Abandoned House" },
+            { "WoodHouse2", "Abandoned House" },
+            { "WoodHouse3", "Abandoned House" },
+            { "WoodHouse4", "Abandoned House" },
+            { "WoodHouse5", "Abandoned House" },
+            { "WoodHouse6", "Abandoned House" },
+            { "WoodHouse7", "Abandoned House" },
         };
 
-        internal static string PrettyName(string prefabName) =>
-            PrettyNames.TryGetValue(prefabName, out var pretty) ? pretty : prefabName;
+        internal static string PrettyName(string prefabName)
+        {
+            if (PrettyNames.TryGetValue(prefabName, out var pretty)) return pretty;
+            // Families with many numbered variants (runestones per biome,
+            // black-forest ruined towers) collapse to one friendly name.
+            if (prefabName.StartsWith("Runestone", StringComparison.Ordinal)) return "Runestone";
+            if (prefabName.StartsWith("StoneTowerRuins", StringComparison.Ordinal)) return "Ruined Tower";
+            return prefabName;
+        }
 
         /// <summary>Effective reset interval in whole in-game days for the given location prefab.</summary>
         internal static int GetResetDays(string prefabName)
