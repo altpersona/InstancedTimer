@@ -1,6 +1,6 @@
 {
   "name": "SunkenCryptTimer",
-  "version_number": "1.1.3",
+  "version_number": "1.1.4",
   "website_url": "https://github.com/altpersona/SunkenCryptTimer",
   "description": "Client-only HUD countdown + ground rings for dungeons on servers running Venture Location Reset: 'resets in 2d 14h' near any entrance, workbench-style ring at VLR's check radius. No server changes needed.",
   "dependencies": [

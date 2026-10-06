@@ -51,10 +51,46 @@ namespace SunkenCryptTimer
             var hud = HudInstance;
             if (hud == null || hud.m_eventName == null) return null;
 
-            var template = hud.m_eventName;
-            var go = new GameObject(nameof(SunkenCryptTimer), typeof(RectTransform), typeof(TextMeshProUGUI));
-            go.transform.SetParent(template.transform.parent, false);
-            go.layer = template.gameObject.layer; // UI layer, so the canvas camera renders it
+            // Source label: the event-name text only if it is actually being
+            // rendered; otherwise any live label on an active canvas (HUD mods
+            // can leave the whole vanilla HUD disabled with unloaded fonts).
+            var source = hud.m_eventName;
+            if (!(source.isActiveAndEnabled && IsUsable(source.font)))
+            {
+                source = null;
+                foreach (var tmp in UnityEngine.Object.FindObjectsOfType<TextMeshProUGUI>())
+                {
+                    if (tmp.isActiveAndEnabled && IsUsable(tmp.font) &&
+                        tmp.canvas != null && tmp.canvas.isActiveAndEnabled)
+                    {
+                        source = tmp;
+                        break;
+                    }
+                }
+                if (source == null)
+                {
+                    SunkenCryptTimerPlugin.Log.LogWarning("No live HUD label to clone from yet; retrying next update.");
+                    return null; // retried from Show() on later ticks
+                }
+                SunkenCryptTimerPlugin.Log.LogWarning($"HUD label cloned from '{source.name}' (canvas '{source.canvas.name}').");
+            }
+
+            // Clone the live label: inherits its font (loaded), material and
+            // canvas - built from scratch, a label on a HUD-mod-disabled
+            // canvas renders nothing regardless of font.
+            var go = UnityEngine.Object.Instantiate(source.gameObject, source.transform.parent, false);
+            go.name = nameof(SunkenCryptTimer);
+            foreach (Transform child in go.transform)
+            {
+                UnityEngine.Object.Destroy(child.gameObject);
+            }
+            foreach (var comp in go.GetComponents<Component>())
+            {
+                if (!(comp is Transform) && !(comp is RectTransform) && !(comp is TextMeshProUGUI))
+                {
+                    UnityEngine.Object.Destroy(comp);
+                }
+            }
 
             var rect = (RectTransform)go.transform;
             rect.anchorMin = new Vector2(0.5f, 1f);
@@ -64,14 +100,13 @@ namespace SunkenCryptTimer
             rect.sizeDelta = new Vector2(900f, 30f);
 
             _label = go.GetComponent<TextMeshProUGUI>();
-            _label.font = ResolveFont(hud, template);
-            _label.fontSize = template.fontSize;
-            _label.color = template.color;
+            _label.fontSize = source.fontSize;
+            _label.color = source.color;
             _label.alignment = TextAlignmentOptions.Center;
             _label.enableWordWrapping = false;
             _label.raycastTarget = false;
 
-            SunkenCryptTimerPlugin.Log.LogDebug("HUD label created.");
+            SunkenCryptTimerPlugin.Log.LogInfo($"HUD label ready (from '{source.name}').");
             return _label;
         }
 

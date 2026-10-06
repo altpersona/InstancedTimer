@@ -174,6 +174,13 @@ namespace SunkenCryptTimer
             go.name = $"Ring_{prefabName}_{uid}";
             go.transform.position = position; // proxy ground position; slices raycast down to terrain
             go.SetActive(false);               // stay inert until radius is set
+            // The AreaMarker subtree is inactive in the workbench prefab and
+            // carries leftover meshes (a floating hammer icon among them) -
+            // keep them off; CircleProjector spawns its own slice children.
+            foreach (Transform child in go.transform)
+            {
+                child.gameObject.SetActive(false);
+            }
             var projector = go.GetComponent<CircleProjector>();
             projector.m_radius = radius;       // set before first Start() so segments spawn correctly
 
@@ -219,10 +226,16 @@ namespace SunkenCryptTimer
             var location = prefab != null ? prefab.GetComponent<Location>() : null;
             if (location == null || !location.m_hasInterior)
             {
+                if (location != null)
+                {
+                    return 0f; // known GROUND location (grave/tree/ruin): never a ring
+                }
                 // Name unresolved (placeholder "Dungeon" or a "DG_*" generator
                 // name): the live root generator near the feature IS the
-                // interior - take the radius straight from it.
-                var live = FindRootGenerator(featurePos, 250f);
+                // interior - take the radius straight from it. Bound kept
+                // tight: in dense regions a generous bound borrows a
+                // neighbouring dungeon's generator for ground features.
+                var live = FindRootGenerator(featurePos, 120f);
                 return live != null && live.transform.position.y >= SkyY
                     ? HalfDiagonal(live.m_zoneSize)
                     : 0f;
