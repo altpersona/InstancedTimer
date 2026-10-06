@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
 
-namespace SunkenCryptTimer
+namespace InstancedTimer
 {
     /// <summary>
     /// Scans for VLR-tracked dungeon entrances around the local player and feeds both
@@ -30,7 +30,7 @@ namespace SunkenCryptTimer
 
         private void Update()
         {
-            if (!SunkenCryptTimerPlugin.CeEnabled.Value)
+            if (!InstancedTimerPlugin.CeEnabled.Value)
             {
                 HudLabel.Hide();
                 ZoneRing.ClearAll();
@@ -39,7 +39,7 @@ namespace SunkenCryptTimer
 
             // Refresh on the scan interval only; countdowns move in minutes, not frames.
             if (Time.time < _nextScan) return;
-            _nextScan = Time.time + Mathf.Max(0.25f, SunkenCryptTimerPlugin.CeUpdateInterval.Value);
+            _nextScan = Time.time + Mathf.Max(0.25f, InstancedTimerPlugin.CeUpdateInterval.Value);
 
             var player = Player.m_localPlayer;
             if (player == null || ZoneSystem.instance == null || EnvMan.instance == null ||
@@ -72,13 +72,13 @@ namespace SunkenCryptTimer
                 }
             }
 
-            if (result == null || result.Value.Distance > SunkenCryptTimerPlugin.CeScanRadius.Value)
+            if (result == null || result.Value.Distance > InstancedTimerPlugin.CeScanRadius.Value)
             {
-                if (SunkenCryptTimerPlugin.CeDebug.Value && result != null)
+                if (InstancedTimerPlugin.CeDebug.Value && result != null)
                 {
-                    SunkenCryptTimerPlugin.Log.LogDebug(
+                    InstancedTimerPlugin.Log.LogDebug(
                         $"Nearest tracked dungeon {result.Value.PrefabName} at {result.Value.Distance:F0}m " +
-                        $"(> {SunkenCryptTimerPlugin.CeScanRadius.Value:F0}m radius), hiding label.");
+                        $"(> {InstancedTimerPlugin.CeScanRadius.Value:F0}m radius), hiding label.");
                 }
                 HudLabel.Hide();
                 return;
@@ -93,9 +93,9 @@ namespace SunkenCryptTimer
                 ? $"{DisplayName(name, result.Value.Uid, result.Value.Position)} - resets in {FormatRemaining(remainingDays)}"
                 : $"{DisplayName(name, result.Value.Uid, result.Value.Position)} - reset ready (regenerates on approach)";
 
-            if (SunkenCryptTimerPlugin.CeDebug.Value)
+            if (InstancedTimerPlugin.CeDebug.Value)
             {
-                SunkenCryptTimerPlugin.Log.LogDebug(
+                InstancedTimerPlugin.Log.LogDebug(
                     $"{name}: lastResetDay={lastResetDay} resetDays={resetDays} " +
                     $"now={CurrentFractionalDay():F2} remaining={remainingDays:F2} -> \"{text}\"");
             }
@@ -136,13 +136,13 @@ namespace SunkenCryptTimer
                 var zdo = nview.GetZDO();
                 if (zdo == null) continue;
 
-                int lastResetDay = zdo.GetInt(SunkenCryptTimerPlugin.VlrLastResetField, -1);
+                int lastResetDay = zdo.GetInt(InstancedTimerPlugin.VlrLastResetField, -1);
                 if (lastResetDay < 0)
                 {
-                    if (SunkenCryptTimerPlugin.CeDebug.Value && _loggedUntracked.Add((int)zdo.m_uid.ID))
+                    if (InstancedTimerPlugin.CeDebug.Value && _loggedUntracked.Add((int)zdo.m_uid.ID))
                     {
-                        SunkenCryptTimerPlugin.Log.LogDebug(
-                            $"LocationProxy {zdo.m_uid} has no {SunkenCryptTimerPlugin.VlrLastResetField} " +
+                        InstancedTimerPlugin.Log.LogDebug(
+                            $"LocationProxy {zdo.m_uid} has no {InstancedTimerPlugin.VlrLastResetField} " +
                             "stamp (server without Venture Location Reset, or timer not started yet).");
                     }
                     continue;
@@ -190,7 +190,7 @@ namespace SunkenCryptTimer
                 }
                 if (_loggedNames.Add((int)zdo.m_uid.ID))
                 {
-                    SunkenCryptTimerPlugin.Log.LogInfo(
+                    InstancedTimerPlugin.Log.LogInfo(
                         $"tracked dungeon: '{prefabName}' (via {via}) at ({proxy.transform.position.x:F0}, {proxy.transform.position.z:F0})");
                 }
                 results.Add(new NearbyDungeon(
@@ -237,13 +237,13 @@ namespace SunkenCryptTimer
         /// </summary>
         private static string DisplayName(string prefabName, long uid, Vector3 position)
         {
-            switch (SunkenCryptTimerPlugin.CeInstanceNaming.Value)
+            switch (InstancedTimerPlugin.CeInstanceNaming.Value)
             {
-                case SunkenCryptTimerPlugin.InstanceNaming.Name:
+                case InstancedTimerPlugin.InstanceNaming.Name:
                     return DungeonNames.Name(uid, prefabName);
-                case SunkenCryptTimerPlugin.InstanceNaming.Zone:
+                case InstancedTimerPlugin.InstanceNaming.Zone:
                     return $"{ResetTimer.PrettyName(prefabName)} {DungeonNames.Zone(position)}";
-                case SunkenCryptTimerPlugin.InstanceNaming.NameAndZone:
+                case InstancedTimerPlugin.InstanceNaming.NameAndZone:
                     return $"{DungeonNames.Name(uid, prefabName)} {DungeonNames.Zone(position)}";
                 default:
                     return ResetTimer.PrettyName(prefabName);
@@ -268,7 +268,7 @@ namespace SunkenCryptTimer
             if (!_totalSecondsFallbackWarned)
             {
                 _totalSecondsFallbackWarned = true;
-                SunkenCryptTimerPlugin.Log.LogWarning(
+                InstancedTimerPlugin.Log.LogWarning(
                     "EnvMan.m_totalSeconds not found via reflection; falling back to ZNet.GetTimeSeconds(). " +
                     "Countdown may be offset by less than a day.");
             }

@@ -1,14 +1,19 @@
 # Publishing a release
 
-How to ship a new version of SunkenCryptTimer to GitHub (source + Release) and
+How to ship a new version of InstancedTimer to GitHub (source + Release) and
 Thunderstore (the mod-manager catalog). Run everything from the repo root.
+
+> History: the mod was called **SunkenCryptTimer** through v1.1.8 (GitHub repo and
+> Thunderstore package `StandardVibeware-SunkenCryptTimer`, now deprecated). v1.2.0
+> renamed it to InstancedTimer — on Thunderstore a rename means a NEW package, which
+> is why the old listing still exists. Old tags/releases keep their old names.
 
 ## One-time setup (already done 2026-10-06)
 
 - GitHub CLI authenticated (`gh auth login`, account `altpersona`, SSH remote).
 - Thunderstore account: log in at thunderstore.io with the GitHub account.
 - Thunderstore team: **`StandardVibeware`** — the team name is the permanent author
-  namespace, so the package is listed as `StandardVibeware-SunkenCryptTimer`
+  namespace, so the package is listed as `StandardVibeware-InstancedTimer`
   (not `altpersona-...`; namespaces can never be renamed).
 - Service-account API token (`tss_...`, created under the team's Service Accounts
   page) stored at `~/.config/thunderstore/api_token` (chmod 600, outside the repo).
@@ -19,9 +24,9 @@ Thunderstore (the mod-manager catalog). Run everything from the repo root.
 
    | File | Field |
    |---|---|
-   | `SunkenCryptTimer/SunkenCryptTimer.csproj` | `<Version>` |
-   | `SunkenCryptTimer/Plugin.cs` | `PluginVersion` |
-   | `SunkenCryptTimer/manifest.json` | `version_number` |
+   | `InstancedTimer/InstancedTimer.csproj` | `<Version>` |
+   | `InstancedTimer/Plugin.cs` | `PluginVersion` |
+   | `InstancedTimer/manifest.json` | `version_number` |
 
    Semantic `Major.Minor.Patch`. Thunderstore **rejects re-uploading a version
    number that already exists** — every upload needs a higher number.
@@ -29,8 +34,8 @@ Thunderstore (the mod-manager catalog). Run everything from the repo root.
 2. **Build + package:**
 
    ```
-   ./build.sh            # -> SunkenCryptTimer/bin/Release/SunkenCryptTimer.dll
-   ./package.sh          # -> SunkenCryptTimer-v<version>.zip (Thunderstore format)
+   ./build.sh            # -> InstancedTimer/bin/Release/InstancedTimer.dll
+   ./package.sh          # -> InstancedTimer-v<version>.zip (Thunderstore format)
    ```
 
    `package.sh` reads the version from `manifest.json`, so the zip is named after it.
@@ -41,7 +46,7 @@ Thunderstore (the mod-manager catalog). Run everything from the repo root.
    git add -A && git commit -m "<version>: <what changed and why>"
    git push
    gh release create v<version> --title "v<version> — <summary>" --notes "<notes>" \
-     SunkenCryptTimer-v<version>.zip SunkenCryptTimer/bin/Release/SunkenCryptTimer.dll
+     InstancedTimer-v<version>.zip InstancedTimer/bin/Release/InstancedTimer.dll
    ```
 
    (`gh release create` also creates the tag from HEAD.)
@@ -76,7 +81,7 @@ Reference so future changes don't break uploads (source: Thunderstore wiki,
   - `icon.png` — **exactly 256×256** PNG (transparency OK).
   - `README.md` — rendered on the package page; close to but not exactly GitHub
     markdown — use the site's Markdown Preview tool when in doubt.
-  - Optional: `CHANGELOG.md`. Mod files go anywhere (ours: `Plugins/SunkenCryptTimer.dll`).
+  - Optional: `CHANGELOG.md`. Mod files go anywhere (ours: `Plugins/InstancedTimer.dll`).
 - Max package size ~5 GB (not a concern here).
 - Validation tools before uploading if something's off: the manifest validator and
   markdown preview linked from the upload page.

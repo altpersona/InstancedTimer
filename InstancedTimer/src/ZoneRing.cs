@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-namespace SunkenCryptTimer
+namespace InstancedTimer
 {
     /// <summary>
     /// Draws one workbench-style ground ring around each nearby VLR-tracked instanced
@@ -51,7 +51,7 @@ namespace SunkenCryptTimer
         /// </summary>
         internal static void UpdateRings(Vector3 playerPos, List<Tracker.NearbyDungeon> nearby)
         {
-            if (!SunkenCryptTimerPlugin.CeRingEnabled.Value)
+            if (!InstancedTimerPlugin.CeRingEnabled.Value)
             {
                 ClearAll();
                 return;
@@ -62,7 +62,7 @@ namespace SunkenCryptTimer
                 return; // template unavailable (warned once); no rings this world
             }
 
-            float showRadius = Mathf.Max(10f, SunkenCryptTimerPlugin.CeRingShowRadius.Value);
+            float showRadius = Mathf.Max(10f, InstancedTimerPlugin.CeRingShowRadius.Value);
             bool playerInInterior = playerPos.y >= SkyY; // hide while inside a dungeon
 
             _candidates.Clear();
@@ -103,9 +103,9 @@ namespace SunkenCryptTimer
                 }
                 entry.Root.SetActive(!playerInInterior);
 
-                if (SunkenCryptTimerPlugin.CeDebug.Value)
+                if (InstancedTimerPlugin.CeDebug.Value)
                 {
-                    SunkenCryptTimerPlugin.Log.LogDebug(
+                    InstancedTimerPlugin.Log.LogDebug(
                         $"ring {feature.PrefabName} uid={feature.Uid} r={radius:F1} dist={feature.Distance:F0}m");
                 }
             }
@@ -147,7 +147,7 @@ namespace SunkenCryptTimer
                 if (!_templateWarned)
                 {
                     _templateWarned = true;
-                    SunkenCryptTimerPlugin.Log.LogWarning(
+                    InstancedTimerPlugin.Log.LogWarning(
                         $"No AreaMarker template found ({TemplatePrefabPrimary}/{TemplatePrefabFallback}); " +
                         "zone rings disabled until the next world.");
                 }
@@ -155,11 +155,11 @@ namespace SunkenCryptTimer
             }
 
             _template = marker;
-            _root = new GameObject("SunkenCryptTimer.Rings"); // scene root: dies on logout to menu
-            SunkenCryptTimerPlugin.Log.LogInfo($"zone rings: template ready ({prefab.name}/{marker.name})");
-            if (SunkenCryptTimerPlugin.CeDebug.Value)
+            _root = new GameObject("InstancedTimer.Rings"); // scene root: dies on logout to menu
+            InstancedTimerPlugin.Log.LogInfo($"zone rings: template ready ({prefab.name}/{marker.name})");
+            if (InstancedTimerPlugin.CeDebug.Value)
             {
-                SunkenCryptTimerPlugin.Log.LogDebug($"ring container created, template from {prefab.name}");
+                InstancedTimerPlugin.Log.LogDebug($"ring container created, template from {prefab.name}");
             }
             return _root;
         }
@@ -195,7 +195,7 @@ namespace SunkenCryptTimer
             };
             _entries[uid] = entry;
 
-            SunkenCryptTimerPlugin.Log.LogInfo(
+            InstancedTimerPlugin.Log.LogInfo(
                 $"ring created: {prefabName} uid={uid} r={radius:F1}m at ({position.x:F0}, {position.z:F0})");
             return entry;
         }
@@ -214,7 +214,7 @@ namespace SunkenCryptTimer
             float radius = ComputeRadius(prefabName, featurePos);
             if (_loggedRadius.Add(prefabName))
             {
-                SunkenCryptTimerPlugin.Log.LogInfo(radius > 0f
+                InstancedTimerPlugin.Log.LogInfo(radius > 0f
                     ? $"ring radius: {prefabName} {radius:F1}m"
                     : $"ring radius: {prefabName} none (not an instanced dungeon or prefab unresolved)");
             }
@@ -259,9 +259,9 @@ namespace SunkenCryptTimer
                 float live = HalfDiagonal(dg.m_zoneSize);
                 if (Mathf.Abs(live - radius) > 0.25f)
                 {
-                    if (SunkenCryptTimerPlugin.CeDebug.Value)
+                    if (InstancedTimerPlugin.CeDebug.Value)
                     {
-                        SunkenCryptTimerPlugin.Log.LogDebug(
+                        InstancedTimerPlugin.Log.LogDebug(
                             $"{prefabName}: live generator radius {live:F1}m overrides prefab value {radius:F1}m");
                     }
                     radius = live;
@@ -273,7 +273,7 @@ namespace SunkenCryptTimer
 
             if (radius <= 0.5f && _warnedPrefabs.Add(prefabName))
             {
-                SunkenCryptTimerPlugin.Log.LogDebug($"no ring radius for {prefabName} (no generator on prefab).");
+                InstancedTimerPlugin.Log.LogDebug($"no ring radius for {prefabName} (no generator on prefab).");
             }
             return radius;
         }

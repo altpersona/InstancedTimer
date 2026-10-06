@@ -4,6 +4,7 @@
 *.user
 *.suo
 SunkenCryptTimer-v*.zip
+InstancedTimer-v*.zip
 
 # machine-local workflow (not part of the published mod)
 deploy.sh

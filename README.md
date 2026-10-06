@@ -1,4 +1,4 @@
-# SunkenCryptTimer
+# InstancedTimer
 
 A **client-only** Valheim mod for players on servers that run
 [Venture Location Reset](https://thunderstore.io/c/valheim/p/OrianaVenture/Venture_Location_Reset/) (VLR).
@@ -35,17 +35,20 @@ or your timer unless they also run the mod.
 ## Installation
 
 **With a mod manager** (r2modman / Gale / Thunderstore Mod Manager): search for
-"SunkenCryptTimer" and install. Done.
+"InstancedTimer" and install. Done.
 
-**Manual**: copy `Plugins/SunkenCryptTimer.dll` from the package into your BepInEx
+**Manual**: copy `Plugins/InstancedTimer.dll` from the package into your BepInEx
 profile's `BepInEx/plugins/` folder.
 
 ## Usage
 
 ### Timer
 
-Walk near any dungeon VLR manages (default: within 80 m of the entrance). A single
-line appears at the top-center of the HUD:
+Walk near any location VLR manages (default: within 80 m of the entrance) - dungeons
+primarily, but on servers where VLR stamps everything (its default), runestones,
+graves, shipwrecks and ruins get counted down too. A single line appears in the
+top-right corner of the HUD, right below the status-effect row (Rested/Wet), in the
+same small text size:
 
 - `Sunken Crypt - resets in 2d 14h` — the dungeon still holds its loot.
 - `Sunken Crypt - reset ready (regenerates on approach)` — the timer has elapsed.
@@ -75,7 +78,7 @@ Rules of thumb the ring makes visible:
   are inside the dungeon, and are capped at the 4 nearest features. Ground locations
   (meadow farms, villages, fuling camps) intentionally get no ring.
 
-## Configuration (`BepInEx/config/lan124.SunkenCryptTimer.cfg`)
+## Configuration (`BepInEx/config/lan124.InstancedTimer.cfg`)
 
 All settings are client-side; changes apply immediately (no restart).
 
@@ -85,7 +88,8 @@ All settings are client-side; changes apply immediately (no restart).
 | General | DebugLogging | false | Verbose scanner logging |
 | HUD | ScanRadiusMeters | 80 | Show the timer within this distance of an entrance |
 | HUD | UpdateIntervalSeconds | 1 | Rescan rate |
-| HUD | HudOffsetY | 170 | Label offset from the top of the screen (px) |
+| HUD | HudOffsetY | 170 | Fallback label offset from the top of the screen (px) - normally the label positions itself under the status-effect row |
+| HUD | InstanceNaming | NameAndZone | How the label names the location: Type, NameAndZone ("Odin's Tomb (-70,-21)"), Name, or Zone |
 | Timers | FallbackResetDays | 10 | Assumed interval when VLR's config can't be read — set to your server's actual interval |
 | Rings | Enabled | true | Draw ground rings around nearby instanced dungeons |
 | Rings | ShowRadiusMeters | 100 | Show a ring while within this distance of the entrance |
@@ -116,7 +120,7 @@ Requires the .NET SDK (6+) and a local Valheim install + BepInEx profile:
 ```
 
 `GameDir` is the folder containing `valheim_Data/`; `ProfileDir` is the folder
-containing `BepInEx/core`. Output: `SunkenCryptTimer/bin/Release/SunkenCryptTimer.dll`.
+containing `BepInEx/core`. Output: `InstancedTimer/bin/Release/InstancedTimer.dll`.
 `./package.sh` additionally builds the Thunderstore zip (requires `zip`). For the
 full release/upload workflow see [PUBLISHING.md](PUBLISHING.md).
 

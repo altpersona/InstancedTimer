@@ -26,9 +26,9 @@ if ! [ -f "$TOKEN_FILE" ]; then
 fi
 TOKEN=$(cat "$TOKEN_FILE")
 
-VERSION=$(grep -o '"version_number": *"[^"]*"' SunkenCryptTimer/manifest.json |
+VERSION=$(grep -o '"version_number": *"[^"]*"' InstancedTimer/manifest.json |
     head -1 | sed 's/.*: *"//;s/"$//')
-ZIP="SunkenCryptTimer-v${VERSION}.zip"
+ZIP="InstancedTimer-v${VERSION}.zip"
 if ! [ -f "$ZIP" ]; then
     echo "package missing: $ZIP (run ./package.sh first)" >&2
     exit 1
@@ -37,7 +37,7 @@ fi
 METADATA=$(printf '{"author_name":"%s","communities":["%s"],"has_nsfw_content":false,"categories":["%s"]}' \
     "$TEAM" "$COMMUNITY" "$CATEGORIES")
 
-echo "publishing $ZIP as $TEAM-SunkenCryptTimer-$VERSION ($COMMUNITY, $CATEGORIES)..."
+echo "publishing $ZIP as $TEAM-InstancedTimer-$VERSION ($COMMUNITY, $CATEGORIES)..."
 # Cloudflare 502s this POST with curl's default User-Agent and also
 # mishandles Expect: 100-continue - both headers below are required.
 RESPONSE=$(curl -sS -w '\n%{http_code}' -X POST "$API" \

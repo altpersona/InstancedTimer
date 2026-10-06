@@ -4,19 +4,19 @@
 set -e
 cd "$(dirname "$0")"
 
-DLL="SunkenCryptTimer/bin/Release/SunkenCryptTimer.dll"
+DLL="InstancedTimer/bin/Release/InstancedTimer.dll"
 [ -f "$DLL" ] || { echo "missing $DLL - run ./build.sh first" >&2; exit 1; }
-[ -f SunkenCryptTimer/icon.png ] || { echo "missing SunkenCryptTimer/icon.png - run tools/make_icon.py" >&2; exit 1; }
+[ -f InstancedTimer/icon.png ] || { echo "missing InstancedTimer/icon.png - run tools/make_icon.py" >&2; exit 1; }
 
-VERSION=$(grep -o '"version_number": *"[^"]*"' SunkenCryptTimer/manifest.json | sed 's/.*"\([0-9.]*\)"/\1/')
+VERSION=$(grep -o '"version_number": *"[^"]*"' InstancedTimer/manifest.json | sed 's/.*"\([0-9.]*\)"/\1/')
 STAGE=$(mktemp -d)
-OUT="SunkenCryptTimer-v${VERSION}.zip"
+OUT="InstancedTimer-v${VERSION}.zip"
 
 mkdir -p "$STAGE/Plugins"
-cp "$DLL" "$STAGE/Plugins/SunkenCryptTimer.dll"
-cp SunkenCryptTimer/manifest.json "$STAGE/manifest.json"
+cp "$DLL" "$STAGE/Plugins/InstancedTimer.dll"
+cp InstancedTimer/manifest.json "$STAGE/manifest.json"
 cp README.md "$STAGE/README.md"
-cp SunkenCryptTimer/icon.png "$STAGE/icon.png"
+cp InstancedTimer/icon.png "$STAGE/icon.png"
 cp CHANGELOG.md "$STAGE/CHANGELOG.md" 2>/dev/null || true
 
 rm -f "$OUT"

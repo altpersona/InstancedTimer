@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace SunkenCryptTimer
+namespace InstancedTimer
 {
     /// <summary>
     /// Deterministic per-instance display names: "Odin's Tomb (6E77)".

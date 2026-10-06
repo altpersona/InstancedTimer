@@ -1,6 +1,6 @@
 // apiscan - dump type/member signatures from a .NET assembly without a decompiler.
 // Uses System.Reflection.Metadata (built into the .NET 6 runtime) to read
-// assembly_valheim.dll read-only. Throwaway dev tool for the SunkenCryptTimer mod.
+// assembly_valheim.dll read-only. Throwaway dev tool for the InstancedTimer mod.
 //
 // Usage: dotnet run -- <assembly.dll> <NameSubstring> [NameSubstring...]
 //        (case-insensitive substring match on full type name, nested types as Outer+Inner)

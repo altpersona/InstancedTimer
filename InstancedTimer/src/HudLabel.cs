@@ -2,7 +2,7 @@ using System.Reflection;
 using TMPro;
 using UnityEngine;
 
-namespace SunkenCryptTimer
+namespace InstancedTimer
 {
     /// <summary>
     /// Right-aligned HUD text label showing the nearest tracked feature's reset
@@ -19,7 +19,7 @@ namespace SunkenCryptTimer
     /// </summary>
     internal static class HudLabel
     {
-        private const string LabelName = "SunkenCryptTimer.HudLabel";
+        private const string LabelName = "InstancedTimer.HudLabel";
 
         private static TextMeshProUGUI _label;
         private static readonly FieldInfo HudInstanceField =
@@ -145,10 +145,10 @@ namespace SunkenCryptTimer
                 }
                 if (donor == null)
                 {
-                    SunkenCryptTimerPlugin.Log.LogWarning("No live HUD label to take a font from yet; retrying next update.");
+                    InstancedTimerPlugin.Log.LogWarning("No live HUD label to take a font from yet; retrying next update.");
                     return null; // retried from Show() on later ticks
                 }
-                SunkenCryptTimerPlugin.Log.LogWarning($"HUD label font taken from '{donor.name}' (canvas '{donor.canvas.name}').");
+                InstancedTimerPlugin.Log.LogWarning($"HUD label font taken from '{donor.name}' (canvas '{donor.canvas.name}').");
             }
 
             // Sweep stale labels from earlier HUD rebuilds so exactly one can
@@ -179,7 +179,7 @@ namespace SunkenCryptTimer
             rect.anchorMin = new Vector2(1f, 1f);
             rect.anchorMax = new Vector2(1f, 1f);
             rect.pivot = new Vector2(1f, 1f);
-            rect.anchoredPosition = new Vector2(-20f, -SunkenCryptTimerPlugin.CeHudOffsetY.Value);
+            rect.anchoredPosition = new Vector2(-20f, -InstancedTimerPlugin.CeHudOffsetY.Value);
             // Wide enough for the longest expected line, but clamped to the
             // canvas width; with wrapping on, anything longer breaks to new
             // lines growing downward instead of running off the left edge.
@@ -199,7 +199,7 @@ namespace SunkenCryptTimer
             _label.overflowMode = TextOverflowModes.Overflow; // wrapped lines grow downward
             _label.raycastTarget = false;
 
-            SunkenCryptTimerPlugin.Log.LogInfo($"HUD label ready on canvas '{canvas.name}' (font from '{donor.name}').");
+            InstancedTimerPlugin.Log.LogInfo($"HUD label ready on canvas '{canvas.name}' (font from '{donor.name}').");
             return _label;
         }
 
@@ -247,7 +247,7 @@ namespace SunkenCryptTimer
             if (!_fontErrored)
             {
                 _fontErrored = true;
-                SunkenCryptTimerPlugin.Log.LogError("No usable TMP font found yet; will retry each update.");
+                InstancedTimerPlugin.Log.LogError("No usable TMP font found yet; will retry each update.");
             }
             return null;
         }
@@ -265,7 +265,7 @@ namespace SunkenCryptTimer
         {
             if (_fontWarned) return;
             _fontWarned = true;
-            SunkenCryptTimerPlugin.Log.LogWarning(message);
+            InstancedTimerPlugin.Log.LogWarning(message);
         }
     }
 }

@@ -41,5 +41,5 @@ d.rounded_rectangle([door_l, arch_top, door_r, door_b], radius=24, fill=interior
 # faint green glow line at the base (swamp crypt)
 d.rectangle([door_l + 4, door_b - 8, door_r - 4, door_b - 4], fill=(96, 140, 66, 255))
 
-img.save("SunkenCryptTimer/icon.png")
-print("wrote SunkenCryptTimer/icon.png", img.size)
+img.save("InstancedTimer/icon.png")
+print("wrote InstancedTimer/icon.png", img.size)

@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <!--
-    SunkenCryptTimer - client-only Valheim BepInEx mod.
+    InstancedTimer - client-only Valheim BepInEx mod.
     Shows "resets in Xd Yh" countdown for dungeons tracked by Venture Location Reset
     (reads the VV_LastReset ZDO field that syncs to every client; server changes NOT required).
 
@@ -13,9 +13,9 @@
     <LangVersion>latest</LangVersion>
     <Nullable>disable</Nullable>
     <ImplicitUsings>disable</ImplicitUsings>
-    <AssemblyName>SunkenCryptTimer</AssemblyName>
-    <RootNamespace>SunkenCryptTimer</RootNamespace>
-    <Version>1.1.8</Version>
+    <AssemblyName>InstancedTimer</AssemblyName>
+    <RootNamespace>InstancedTimer</RootNamespace>
+    <Version>1.2.0</Version>
     <DebugType>embedded</DebugType>
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>

@@ -2,7 +2,7 @@ using BepInEx;
 using BepInEx.Configuration;
 using BepInEx.Logging;
 
-namespace SunkenCryptTimer
+namespace InstancedTimer
 {
     /// <summary>
     /// Client-only mod: shows a "resets in Xd Yh" countdown for instanced dungeons
@@ -13,11 +13,11 @@ namespace SunkenCryptTimer
     /// this mod never writes world data.
     /// </summary>
     [BepInPlugin(PluginGuid, PluginName, PluginVersion)]
-    public class SunkenCryptTimerPlugin : BaseUnityPlugin
+    public class InstancedTimerPlugin : BaseUnityPlugin
     {
-        public const string PluginGuid = "lan124.SunkenCryptTimer";
-        public const string PluginName = "SunkenCryptTimer";
-        public const string PluginVersion = "1.1.8";
+        public const string PluginGuid = "lan124.InstancedTimer";
+        public const string PluginName = "InstancedTimer";
+        public const string PluginVersion = "1.2.0";
 
         internal static ManualLogSource Log;
 

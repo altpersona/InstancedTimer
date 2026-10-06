@@ -1,4 +1,19 @@
-# CHANGELOG — valheimmer / SunkenCryptTimer
+# CHANGELOG — valheimmer / InstancedTimer (SunkenCryptTimer through v1.1.8)
+
+## 2026-10-06 — v1.2.0: renamed SunkenCryptTimer → InstancedTimer
+
+- The mod outgrew its name: since v1.1.7 it labels every VLR-tracked location
+  (runestones, graves, shipwrecks, ruins, huts), not just crypts. New identity
+  everywhere: plugin name, GUID (`lan124.SunkenCryptTimer` → `lan124.InstancedTimer`),
+  namespace, assembly + DLL name, project dir, scripts, GitHub repo
+  (renamed; old URLs redirect), and Thunderstore package — where a name change
+  means a new package (`StandardVibeware-InstancedTimer`); the old
+  `StandardVibeware-SunkenCryptTimer` listing is deprecated in favor of it.
+- Consequence of the GUID change: the config file is now
+  `lan124.InstancedTimer.cfg` and starts from defaults (defaults match the
+  previous recommended settings). Remove the old `plugins/SunkenCryptTimer/`
+  folder when upgrading manually — both DLLs together would double-draw the HUD.
+- No behavior changes; v1.2.0 is v1.1.8 under the new name.
 
 ## 2026-10-06 — v1.1.8: match status-effect text size, sit below the effect row
 

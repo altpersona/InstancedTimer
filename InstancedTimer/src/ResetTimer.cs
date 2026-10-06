@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using BepInEx.Bootstrap;
 using BepInEx.Configuration;
 
-namespace SunkenCryptTimer
+namespace InstancedTimer
 {
     /// <summary>
     /// Computes the countdown for a dungeon from its VV_LastReset day stamp and the
@@ -120,23 +120,23 @@ namespace SunkenCryptTimer
             var vlr = GetVlrConfig();
             if (vlr == null)
             {
-                return SunkenCryptTimerPlugin.CeFallbackResetDays.Value;
+                return InstancedTimerPlugin.CeFallbackResetDays.Value;
             }
 
             // Advanced/OverrideResetTimes == false -> the global General/ResetTime applies
             // to every location, exactly like VLR's GetResetTime fallback.
             if (!ReadBool(vlr, "Advanced", "OverrideResetTimes"))
             {
-                return ReadInt(vlr, "General", "ResetTime", SunkenCryptTimerPlugin.CeFallbackResetDays.Value);
+                return ReadInt(vlr, "General", "ResetTime", InstancedTimerPlugin.CeFallbackResetDays.Value);
             }
 
             if (TypeConfigKeys.TryGetValue(prefabName, out var key))
             {
                 return ReadInt(vlr, "Advanced", key, ReadInt(vlr, "General", "ResetTime",
-                    SunkenCryptTimerPlugin.CeFallbackResetDays.Value));
+                    InstancedTimerPlugin.CeFallbackResetDays.Value));
             }
 
-            return ReadInt(vlr, "General", "ResetTime", SunkenCryptTimerPlugin.CeFallbackResetDays.Value);
+            return ReadInt(vlr, "General", "ResetTime", InstancedTimerPlugin.CeFallbackResetDays.Value);
         }
 
         // Cached live ConfigFile of the installed Venture Location Reset plugin, if any.
@@ -148,15 +148,15 @@ namespace SunkenCryptTimer
             if (!_vlrConfigResolved)
             {
                 _vlrConfigResolved = true;
-                if (Chainloader.PluginInfos.TryGetValue(SunkenCryptTimerPlugin.VlrPluginGuid, out var plugin))
+                if (Chainloader.PluginInfos.TryGetValue(InstancedTimerPlugin.VlrPluginGuid, out var plugin))
                 {
                     _vlrConfig = plugin.Instance.Config;
-                    SunkenCryptTimerPlugin.Log.LogDebug(
+                    InstancedTimerPlugin.Log.LogDebug(
                         "Venture Location Reset detected - using its live (server-synced) config.");
                 }
                 else
                 {
-                    SunkenCryptTimerPlugin.Log.LogDebug(
+                    InstancedTimerPlugin.Log.LogDebug(
                         "Venture Location Reset not installed - using FallbackResetDays.");
                 }
             }
