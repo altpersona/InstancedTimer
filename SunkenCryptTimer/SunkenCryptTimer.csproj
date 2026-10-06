@@ -1,0 +1,65 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    SunkenCryptTimer - client-only Valheim BepInEx mod.
+    Shows "resets in Xd Yh" countdown for dungeons tracked by Venture Location Reset
+    (reads the VV_LastReset ZDO field that syncs to every client; server changes NOT required).
+
+    Paths can be overridden on the command line:
+      dotnet build -c Release -p:GameDir=/path/to/Valheim -p:ProfileDir=/path/to/BepInExProfileRoot
+  -->
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <AssemblyName>SunkenCryptTimer</AssemblyName>
+    <RootNamespace>SunkenCryptTimer</RootNamespace>
+    <Version>1.1.0</Version>
+    <DebugType>embedded</DebugType>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+
+    <!-- Machine-specific install locations (lan-124). -->
+    <GameDir Condition="'$(GameDir)' == ''">/home/default/.steam/debian-installation/steamapps/common/Valheim</GameDir>
+    <ProfileDir Condition="'$(ProfileDir)' == ''">/home/default/.local/share/com.kesomannen.gale/valheim/profiles/StormerValheim</ProfileDir>
+    <ManagedDir>$(GameDir)/valheim_Data/Managed</ManagedDir>
+    <BepInExCoreDir>$(ProfileDir)/BepInEx/core</BepInExCoreDir>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="BepInEx">
+      <HintPath>$(BepInExCoreDir)/BepInEx.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="assembly_valheim">
+      <HintPath>$(ManagedDir)/assembly_valheim.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="assembly_utils">
+      <HintPath>$(ManagedDir)/assembly_utils.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine">
+      <HintPath>$(ManagedDir)/UnityEngine.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.CoreModule">
+      <HintPath>$(ManagedDir)/UnityEngine.CoreModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.UI">
+      <HintPath>$(ManagedDir)/UnityEngine.UI.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Unity.TextMeshPro">
+      <HintPath>$(ManagedDir)/Unity.TextMeshPro.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+  <Target Name="ReportArtifact" AfterTargets="Build">
+    <Message Importance="high" Text="ARTIFACT: $(TargetDir)$(AssemblyName).dll" />
+  </Target>
+
+</Project>

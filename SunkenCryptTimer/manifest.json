@@ -1,0 +1,9 @@
+{
+  "name": "SunkenCryptTimer",
+  "version_number": "1.1.0",
+  "website_url": "https://github.com/altpersona/SunkenCryptTimer",
+  "description": "Client-only HUD countdown + ground rings for dungeons on servers running Venture Location Reset: 'resets in 2d 14h' near any entrance, workbench-style ring at VLR's check radius. No server changes needed.",
+  "dependencies": [
+    "denikson-BepInExPack_Valheim-5.4.2351"
+  ]
+}

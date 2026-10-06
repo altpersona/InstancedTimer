@@ -1,0 +1,19 @@
+# build artifacts
+[Bb]in/
+[Oo]bj/
+*.user
+*.suo
+SunkenCryptTimer-v*.zip
+
+# machine-local workflow (not part of the published mod)
+deploy.sh
+setup-local-server.py
+
+# private session notes (contain local infra details)
+DEV_NOTES.md
+TODO.md
+
+# claude / editor state
+.claude/
+.idea/
+.vscode/
