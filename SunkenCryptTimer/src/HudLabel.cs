@@ -22,6 +22,19 @@ namespace SunkenCryptTimer
         {
             var label = GetOrCreate();
             if (label == null) return;
+
+            // Self-heal an unusable font: the event-name template's font can
+            // be a non-null reference to a not-yet-loaded asset (Unity 6
+            // lazy loading) or get assigned after our label was created.
+            if (!IsUsable(label.font))
+            {
+                var hud = HudInstance;
+                if (hud != null && hud.m_eventName != null)
+                {
+                    label.font = ResolveFont(hud, hud.m_eventName);
+                }
+            }
+
             if (!label.gameObject.activeSelf) label.gameObject.SetActive(true);
             label.text = text;
         }
@@ -51,7 +64,7 @@ namespace SunkenCryptTimer
             rect.sizeDelta = new Vector2(900f, 30f);
 
             _label = go.GetComponent<TextMeshProUGUI>();
-            _label.font = template.font;
+            _label.font = ResolveFont(hud, template);
             _label.fontSize = template.fontSize;
             _label.color = template.color;
             _label.alignment = TextAlignmentOptions.Center;
@@ -60,6 +73,60 @@ namespace SunkenCryptTimer
 
             SunkenCryptTimerPlugin.Log.LogDebug("HUD label created.");
             return _label;
+        }
+
+        /// <summary>
+        /// Font with fallbacks. The event-name label's font can be null OR a
+        /// non-null reference to an unloaded asset (seen on Unity 6: TMP then
+        /// renders nothing and logs "no Font Asset assigned"). Only trust
+        /// fonts whose atlas is resident; try other live HUD labels, then
+        /// TMP's default asset. Warnings fire once - this re-runs from Show()
+        /// until a usable font appears.
+        /// </summary>
+        private static TMP_FontAsset ResolveFont(Hud hud, TMP_Text template)
+        {
+            if (IsUsable(template.font))
+            {
+                return template.font;
+            }
+
+            foreach (var tmp in hud.GetComponentsInChildren<TextMeshProUGUI>(true))
+            {
+                if (tmp.isActiveAndEnabled && IsUsable(tmp.font))
+                {
+                    WarnOnce($"Event font not usable; using font from HUD label '{tmp.name}'.");
+                    return tmp.font;
+                }
+            }
+
+            if (IsUsable(TMP_Settings.defaultFontAsset))
+            {
+                WarnOnce("No usable font in HUD; using TMP_Settings.defaultFontAsset.");
+                return TMP_Settings.defaultFontAsset;
+            }
+
+            if (!_fontErrored)
+            {
+                _fontErrored = true;
+                SunkenCryptTimerPlugin.Log.LogError("No usable TMP font found yet; will retry each update.");
+            }
+            return null;
+        }
+
+        /// <summary>A font is usable only if its atlas texture is actually loaded.</summary>
+        private static bool IsUsable(TMP_FontAsset font)
+        {
+            return font != null && font.atlas != null;
+        }
+
+        private static bool _fontWarned;
+        private static bool _fontErrored;
+
+        private static void WarnOnce(string message)
+        {
+            if (_fontWarned) return;
+            _fontWarned = true;
+            SunkenCryptTimerPlugin.Log.LogWarning(message);
         }
     }
 }

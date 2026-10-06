@@ -15,11 +15,18 @@ namespace SunkenCryptTimer
     {
         private float _nextScan;
         private readonly HashSet<int> _loggedUntracked = new HashSet<int>();
+        private readonly HashSet<int> _loggedNames = new HashSet<int>();
         private readonly List<NearbyDungeon> _nearby = new List<NearbyDungeon>();
 
         // Cached reflection for EnvMan.m_totalSeconds (protected-internal).
         private static readonly FieldInfo TotalSecondsField = GetEnvField("m_totalSeconds");
         private static bool _totalSecondsFallbackWarned;
+
+        // Cached reflection for LocationProxy.m_instance (private): the spawned
+        // location GameObject - the only reliable name source on dedicated
+        // servers, where the ZDO s_location read comes back empty.
+        private static readonly FieldInfo InstanceField = typeof(LocationProxy).GetField(
+            "m_instance", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
 
         private void Update()
         {
@@ -141,10 +148,37 @@ namespace SunkenCryptTimer
                     continue;
                 }
 
-                string prefabName = zdo.GetString(ZDOVars.s_location, "");
+                // Name sources in reliability order: the spawned instance's
+                // GameObject name ("SunkenCrypt4(Clone)" - ground truth while
+                // the zone is loaded, and it is always loaded when we are
+                // close enough to care), then the raw ZDO field (observed
+                // empty on dedicated servers), then a zone-system match.
+                string via = "instance";
+                string prefabName = null;
+                var instance = InstanceField != null ? InstanceField.GetValue(proxy) as GameObject : null;
+                if (instance != null)
+                {
+                    prefabName = instance.name;
+                    int clone = prefabName.IndexOf("(Clone)", StringComparison.Ordinal);
+                    if (clone >= 0)
+                    {
+                        prefabName = prefabName.Substring(0, clone);
+                    }
+                }
+                if (string.IsNullOrEmpty(prefabName))
+                {
+                    prefabName = zdo.GetString(ZDOVars.s_location, "");
+                    via = "zdo";
+                }
                 if (string.IsNullOrEmpty(prefabName))
                 {
                     prefabName = ResolveNameFromZoneSystem(proxy.transform.position);
+                    via = "zonesystem";
+                }
+                if (_loggedNames.Add((int)zdo.m_uid.ID))
+                {
+                    SunkenCryptTimerPlugin.Log.LogInfo(
+                        $"tracked dungeon: '{prefabName}' (via {via}) at ({proxy.transform.position.x:F0}, {proxy.transform.position.z:F0})");
                 }
                 results.Add(new NearbyDungeon(
                     prefabName, lastResetDay,

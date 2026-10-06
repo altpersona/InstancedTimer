@@ -1,5 +1,28 @@
 # CHANGELOG — valheimmer / SunkenCryptTimer
 
+## 2026-10-06 — v1.1.2: fix invisible HUD text + missing rings on dedicated servers
+
+- First real-server test (Stormer dedicated server, Valheim 1.0.16) showed neither
+  feature; session-log instrumentation added in-between builds pinpointed both causes.
+- **HUD text invisible**: the font copied from the vanilla event-name label was a
+  non-null reference to a not-yet-loaded font asset (Unity 6 lazy loading) — TMP
+  renders nothing and logs "no Font Asset assigned". Fonts are now trusted only when
+  their atlas texture is resident; otherwise the HUD is scanned for any actively
+  rendering label's font, then TMP's default asset, retying each update until one
+  loads (so late font assignment self-heals).
+- **Rings never created**: dungeon names resolved to the generic "Dungeon"
+  placeholder because the LocationProxy ZDO's `s_location` string reads empty on
+  dedicated servers (worked on the local test server — why the smoke test passed).
+  Names now come (via reflection) from the proxy's private `m_instance` — the
+  spawned location GameObject, whose name is `SunkenCrypt4(Clone)` — with the ZDO
+  field and a zone-system position match as fallbacks.
+- Ring lifecycle now logs at Info level once per stage (`zone rings: template
+  ready`, `ring radius: <prefab> <r>m`, `ring created: ...`, `tracked dungeon:
+  '<name>' (via <source>)`), so field failures are diagnosable from LogOutput.log
+  without enabling DebugLogging.
+- Buildable on any machine: `dotnet build -p:GameDir=... -p:ProfileDir=...`
+  (first non-124 build; dotnet SDK 9 installed on Machine B for this).
+
 ## 2026-10-06 — GitHub publish + Thunderstore packaging
 
 - Public repo created: https://github.com/altpersona/SunkenCryptTimer (MIT license,

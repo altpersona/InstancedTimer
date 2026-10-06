@@ -37,6 +37,7 @@ namespace SunkenCryptTimer
         // prefabName -> radius; only stored once confirmed live, otherwise recomputed.
         private static readonly Dictionary<string, float> _radiusCache = new Dictionary<string, float>();
         private static readonly HashSet<string> _warnedPrefabs = new HashSet<string>();
+        private static readonly HashSet<string> _loggedRadius = new HashSet<string>();
         private static readonly List<Tracker.NearbyDungeon> _candidates = new List<Tracker.NearbyDungeon>();
         private static readonly List<RingEntry> _sweep = new List<RingEntry>();
 
@@ -154,6 +155,7 @@ namespace SunkenCryptTimer
 
             _template = marker;
             _root = new GameObject("SunkenCryptTimer.Rings"); // scene root: dies on logout to menu
+            SunkenCryptTimerPlugin.Log.LogInfo($"zone rings: template ready ({prefab.name}/{marker.name})");
             if (SunkenCryptTimerPlugin.CeDebug.Value)
             {
                 SunkenCryptTimerPlugin.Log.LogDebug($"ring container created, template from {prefab.name}");
@@ -185,10 +187,8 @@ namespace SunkenCryptTimer
             };
             _entries[uid] = entry;
 
-            if (SunkenCryptTimerPlugin.CeDebug.Value)
-            {
-                SunkenCryptTimerPlugin.Log.LogDebug($"created ring for {prefabName} (uid {uid}) radius {radius:F1}m");
-            }
+            SunkenCryptTimerPlugin.Log.LogInfo(
+                $"ring created: {prefabName} uid={uid} r={radius:F1}m at ({position.x:F0}, {position.z:F0})");
             return entry;
         }
 
@@ -202,6 +202,18 @@ namespace SunkenCryptTimer
         /// (VLR parity); only confirmed values are cached.
         /// </summary>
         private static float ResolveRadius(string prefabName, Vector3 featurePos)
+        {
+            float radius = ComputeRadius(prefabName, featurePos);
+            if (_loggedRadius.Add(prefabName))
+            {
+                SunkenCryptTimerPlugin.Log.LogInfo(radius > 0f
+                    ? $"ring radius: {prefabName} {radius:F1}m"
+                    : $"ring radius: {prefabName} none (not an instanced dungeon or prefab unresolved)");
+            }
+            return radius;
+        }
+
+        private static float ComputeRadius(string prefabName, Vector3 featurePos)
         {
             var prefab = ZNetScene.instance.GetPrefab(prefabName);
             var location = prefab != null ? prefab.GetComponent<Location>() : null;
