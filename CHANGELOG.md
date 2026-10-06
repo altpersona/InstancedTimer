@@ -1,5 +1,15 @@
 # CHANGELOG — valheimmer / SunkenCryptTimer
 
+## 2026-10-06 — v1.1.8: match status-effect text size, sit below the effect row
+
+- Field feedback on v1.1.7's right-side label: font too large, and the fixed
+  170 px top offset overlapped the minimap. The label now copies its font size
+  from the status-effect template text (the small text on the Rested/Wet
+  icons) and repositions itself every update just below the live bottom edge
+  of the status-effect row, right edges aligned - so wrapped rows of effect
+  icons push the timer down instead of it overlapping anything. HudOffsetY is
+  now only a fallback offset for the rare case the row can't be located.
+
 ## 2026-10-06 — v1.1.7: right-side label, friendly ground-feature names, no rings on graves
 
 - HUD label moved from top-center to the top-right corner (user preference; the

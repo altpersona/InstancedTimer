@@ -6,16 +6,16 @@ namespace SunkenCryptTimer
 {
     /// <summary>
     /// Right-aligned HUD text label showing the nearest tracked feature's reset
-    /// countdown, anchored below the top-right corner of the screen (clear of the
-    /// top-center event/notice area). Styling comes from the event-name text (font
-    /// size and color; the font itself from any actively rendering HUD label, since
-    /// the event name's font can be an unloaded asset). Built from scratch as a
-    /// direct child of the HUD canvas - never parented into another mod's panel
-    /// (v1.1.5 cloned panels' labels as siblings, which scattered stale copies
-    /// across the screen when those panels were rebuilt or pooled). Long text
-    /// wraps to extra lines inside a width-clamped rect, so it can never run off
-    /// the screen. Lazily created and recreated automatically if the HUD is
-    /// rebuilt (world transitions).
+    /// countdown, anchored directly below the status-effect row (Rested/Wet
+    /// icons) in the top-right corner. Font size is copied from the status-effect
+    /// template text; the label is repositioned under the row's live bottom edge
+    /// every update, so extra rows of effect icons push it down instead of
+    /// overlapping. The font itself comes from any actively rendering HUD label
+    /// (the event name's font can be an unloaded asset). Built from scratch as a
+    /// direct child of the HUD canvas - never parented into another mod's panel.
+    /// Long text wraps to extra lines inside a width-clamped rect, so it can
+    /// never run off the screen. Lazily created and recreated automatically if
+    /// the HUD is rebuilt (world transitions).
     /// </summary>
     internal static class HudLabel
     {
@@ -45,8 +45,73 @@ namespace SunkenCryptTimer
             }
 
             if (!label.gameObject.activeSelf) label.gameObject.SetActive(true);
+            MatchStatusEffectRow(label);
             label.text = text;
         }
+
+        /// <summary>
+        /// Matches the status-effect row (Rested/Wet): copies its text size once,
+        /// and keeps this label positioned just below the row's lowest active
+        /// entry - wrapped rows of icons push the timer further down. Runs every
+        /// update; all failures silently keep the last good values.
+        /// </summary>
+        private static void MatchStatusEffectRow(TextMeshProUGUI label)
+        {
+            var hud = HudInstance;
+            if (hud == null || hud.m_statusEffectListRoot == null) return;
+
+            if (!_statusTextSizeApplied)
+            {
+                var template = hud.m_statusEffectTemplate;
+                if (template != null)
+                {
+                    foreach (var tmp in template.GetComponentsInChildren<TMP_Text>(true))
+                    {
+                        label.fontSize = tmp.fontSize;
+                        _statusTextSizeApplied = true;
+                        break;
+                    }
+                }
+            }
+
+            // Lowest bottom and rightmost edge of the live entries; the root
+            // alone does not grow when icons wrap to further rows.
+            var listRoot = hud.m_statusEffectListRoot;
+            var canvasRect = (RectTransform)label.canvas.transform;
+            var corners = new Vector3[4]; // GetWorldCorners: [BL, TL, TR, BR]
+            float bottom = float.MaxValue, right = float.MinValue;
+
+            void Consider(Vector3 worldCorner)
+            {
+                var local = canvasRect.InverseTransformPoint(worldCorner);
+                if (local.y < bottom) bottom = local.y;
+                if (local.x > right) right = local.x;
+            }
+
+            var measured = false;
+            foreach (Transform child in listRoot)
+            {
+                if (!child.gameObject.activeSelf) continue;
+                ((RectTransform)child).GetWorldCorners(corners);
+                foreach (var corner in corners) Consider(corner);
+                measured = true;
+            }
+            if (!measured)
+            {
+                listRoot.GetWorldCorners(corners);
+                foreach (var corner in corners) Consider(corner);
+            }
+
+            if (bottom > float.MinValue + 1f && right < float.MaxValue - 1f)
+            {
+                var rect = canvasRect.rect;
+                float fromTop = rect.max.y - bottom + 10f;   // small gap below the row
+                float fromRight = rect.max.x - right;        // right edges aligned
+                ((RectTransform)label.transform).anchoredPosition = new Vector2(-fromRight, -fromTop);
+            }
+        }
+
+        private static bool _statusTextSizeApplied;
 
         internal static void Hide()
         {
@@ -122,6 +187,7 @@ namespace SunkenCryptTimer
             rect.sizeDelta = new Vector2(Mathf.Min(700f, canvasRect.rect.width - 40f), 30f);
 
             _label = go.GetComponent<TextMeshProUGUI>();
+            _statusTextSizeApplied = false; // re-adopt the status row size for this label
             _label.font = donor.font;
             _label.fontSize = donor.fontSize;
             // Fixed style from the event-name element: inheriting the donor's
