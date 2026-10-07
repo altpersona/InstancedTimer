@@ -7,8 +7,8 @@ namespace InstancedTimer
     /// <summary>
     /// Right-aligned HUD text label showing the nearest tracked feature's reset
     /// countdown, anchored directly below the status-effect row (Rested/Wet
-    /// icons) in the top-right corner. Font size is copied from the status-effect
-    /// template text; the label is repositioned under the row's live bottom edge
+    /// icons) in the top-right corner. Font size matches the rendered size of the
+    /// status-effect labels; the label is repositioned under the row's live bottom edge
     /// every update, so extra rows of effect icons push it down instead of
     /// overlapping. The font itself comes from any actively rendering HUD label
     /// (the event name's font can be an unloaded asset). Built from scratch as a
@@ -20,9 +20,6 @@ namespace InstancedTimer
     internal static class HudLabel
     {
         private const string LabelName = "InstancedTimer.HudLabel";
-        // Points added to the status-effect text size (user-tuned: raw size too small,
-        // then +2 still too small — raised again after the v1.2.1 field test).
-        private const float StatusTextSizeBonus = 4f;
 
         private static TextMeshProUGUI _label;
         private static readonly FieldInfo HudInstanceField =
@@ -65,17 +62,30 @@ namespace InstancedTimer
 
             if (!_statusTextSizeApplied)
             {
-                var template = hud.m_statusEffectTemplate;
-                if (template != null)
+                // Size donor: a live status entry first - its first active TMP is
+                // exactly the label vanilla writes 'Resting' into (same lookup
+                // Hud.UpdateStatusEffects itself uses) - else the template.
+                // fontSize alone is not the rendered size (the status hierarchy
+                // can carry its own scale), so the value is carried through each
+                // side's world scale. Point bonuses on the raw size (v1.2.1/v1.2.2)
+                // landed at 1.5x the labels on screen; this reproduces their
+                // rendered size exactly.
+                TMP_Text sizeDonor = null;
+                foreach (Transform child in hud.m_statusEffectListRoot)
                 {
-                    foreach (var tmp in template.GetComponentsInChildren<TMP_Text>(true))
-                    {
-                        // Raw status-text size proved too small to read in the
-                        // field (user feedback on v1.2.0) - a couple points up.
-                        label.fontSize = tmp.fontSize + StatusTextSizeBonus;
-                        _statusTextSizeApplied = true;
-                        break;
-                    }
+                    if (!child.gameObject.activeSelf) continue;
+                    sizeDonor = child.GetComponentInChildren<TMP_Text>();
+                    if (sizeDonor != null) break;
+                }
+                if (sizeDonor == null && hud.m_statusEffectTemplate != null)
+                {
+                    sizeDonor = hud.m_statusEffectTemplate.GetComponentInChildren<TMP_Text>(true);
+                }
+                float ownScale = label.transform.lossyScale.x;
+                if (sizeDonor != null && ownScale > 0.01f && sizeDonor.transform.lossyScale.x > 0.01f)
+                {
+                    label.fontSize = sizeDonor.fontSize * (sizeDonor.transform.lossyScale.x / ownScale);
+                    _statusTextSizeApplied = true;
                 }
             }
 

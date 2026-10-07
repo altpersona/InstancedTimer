@@ -1,5 +1,14 @@
 # CHANGELOG — valheimmer / InstancedTimer (SunkenCryptTimer through v1.1.8)
 
+## 2026-10-06 — v1.2.3: timer text now matches the status labels' on-screen size
+
+- Field test (screenshot measured): v1.2.2 rendered 1.5x the size of the
+  Wood/Resting/Shelter labels — the point bonus itself was the whole error.
+  `StatusTextSizeBonus` removed; the label now adopts the rendered size of a live
+  status-effect entry (its first active TMP - the same label vanilla writes the
+  effect name into), carrying `fontSize` through both sides' world scale so the
+  on-screen size matches exactly whatever scale the status hierarchy carries.
+
 ## 2026-10-06 — v1.2.2: timer text +2 more points
 
 - v1.2.1's +2 over the status-text size was still too small (user field test);

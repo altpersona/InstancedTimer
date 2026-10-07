@@ -117,3 +117,17 @@ StoneTowerRuins*→Ruined Tower); the label still shows all tracked features by 
 Prevent: When building against VLR data, enumerate what the SERVER actually stamps
 (check its config + the client LogOutput.log "tracked dungeon:" lines), not just the
 dungeon types VLR's per-type config implies.
+
+## [2026-10-06] TMP fontSize is not the rendered size — never tune with constant bonuses
+Symptom: timer text adopted the "status-effect text size" but never matched on screen:
+raw copy "too small" (v1.2.0), +2 "still too small" (v1.2.1), +4 landed at 1.5x the
+labels (v1.2.2 field screenshot: labels 8px caps, timer 12px).
+Root cause: TMP `fontSize` is points before transform scaling; the status-effect
+hierarchy carries its own scale, and the mod label sits on the unscaled canvas root.
+Copying `fontSize` (plus hand bonuses) compares unlike units — each blind bump
+overshoots or undershoots and can never converge.
+Fix: take `fontSize` from a live status entry (first active TMP — the same lookup
+vanilla's `Hud.UpdateStatusEffects` uses for the name label) and multiply by
+`donor.lossyScale.x / label.lossyScale.x` (HudLabel.cs `MatchStatusEffectRow`).
+Prevent: when matching an on-screen UI size, match rendered size through world
+scale; measure a screenshot before shipping another guess.
