@@ -17,7 +17,7 @@ namespace InstancedTimer
     {
         public const string PluginGuid = "lan124.InstancedTimer";
         public const string PluginName = "InstancedTimer";
-        public const string PluginVersion = "1.2.3";
+        public const string PluginVersion = "1.2.4";
 
         internal static ManualLogSource Log;
 
@@ -31,6 +31,7 @@ namespace InstancedTimer
         internal static ConfigEntry<float> CeScanRadius;
         internal static ConfigEntry<float> CeUpdateInterval;
         internal static ConfigEntry<float> CeHudOffsetY;
+        internal static ConfigEntry<float> CeTextScale;
         internal static ConfigEntry<int> CeFallbackResetDays;
         internal static ConfigEntry<bool> CeRingEnabled;
         internal static ConfigEntry<float> CeRingShowRadius;
@@ -53,6 +54,10 @@ namespace InstancedTimer
                 "Fallback top offset for the timer text, used only until the status-effect row " +
                 "(Rested/Wet icons) is found - normally the timer positions itself just below " +
                 "that row (float, pixels).");
+            CeTextScale = Config.Bind("HUD", "TextScale", 1.25f,
+                new ConfigDescription("Timer text size relative to the status-effect labels " +
+                "(1 = same size as Resting/Shelter). Applies live - no restart needed.",
+                new AcceptableValueRange<float>(0.5f, 3f)));
             CeFallbackResetDays = Config.Bind("Timers", "FallbackResetDays", 10,
                 "Assumed reset interval (in-game days) when Venture Location Reset is not installed on this " +
                 "client and its synced config cannot be read. Set this to match the server you play on. " +

@@ -84,9 +84,20 @@ namespace InstancedTimer
                 float ownScale = label.transform.lossyScale.x;
                 if (sizeDonor != null && ownScale > 0.01f && sizeDonor.transform.lossyScale.x > 0.01f)
                 {
-                    label.fontSize = sizeDonor.fontSize * (sizeDonor.transform.lossyScale.x / ownScale);
+                    _statusBaseSize = sizeDonor.fontSize * (sizeDonor.transform.lossyScale.x / ownScale);
+                    _appliedTextScale = InstancedTimerPlugin.CeTextScale.Value;
+                    label.fontSize = _statusBaseSize * _appliedTextScale;
                     _statusTextSizeApplied = true;
                 }
+            }
+
+            // Live tuning: a TextScale change in the config manager re-scales
+            // from the adopted base size on the next update - no restart.
+            if (_statusTextSizeApplied &&
+                !Mathf.Approximately(_appliedTextScale, InstancedTimerPlugin.CeTextScale.Value))
+            {
+                _appliedTextScale = InstancedTimerPlugin.CeTextScale.Value;
+                label.fontSize = _statusBaseSize * _appliedTextScale;
             }
 
             // Lowest bottom and rightmost edge of the live entries; the root
@@ -127,6 +138,8 @@ namespace InstancedTimer
         }
 
         private static bool _statusTextSizeApplied;
+        private static float _statusBaseSize;   // adopted donor size in this label's points
+        private static float _appliedTextScale; // TextScale value baked into the current size
 
         internal static void Hide()
         {

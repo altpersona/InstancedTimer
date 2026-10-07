@@ -1,6 +1,6 @@
 {
   "name": "InstancedTimer",
-  "version_number": "1.2.3",
+  "version_number": "1.2.4",
   "website_url": "https://github.com/altpersona/InstancedTimer",
   "description": "Client-only HUD countdown + ground rings for dungeons and other VLR-tracked locations: 'resets in 2d 14h' near any entrance, workbench-style ring at VLR's check radius. No server changes needed.",
   "dependencies": [

@@ -131,3 +131,15 @@ vanilla's `Hud.UpdateStatusEffects` uses for the name label) and multiply by
 `donor.lossyScale.x / label.lossyScale.x` (HudLabel.cs `MatchStatusEffectRow`).
 Prevent: when matching an on-screen UI size, match rendered size through world
 scale; measure a screenshot before shipping another guess.
+
+## [2026-10-06] Size taste diverges per user — ship a knob, not a guess
+Symptom: three consecutive builds tuned timer text size by constant (raw, +2, +4);
+each field test reversed the previous verdict (too small → too small → 1.5x →
+"small-ish" at exact-match).
+Root cause: point-size guessing against a scaled reference cannot converge, and
+every iteration costs a build + restart + field test round trip.
+Fix: anchor the size to something measurable (v1.2.3 rendered-size match), then
+expose the remaining taste as a live config entry (`TextScale`, 1.25 default,
+0.5-3 range) that applies without a restart.
+Prevent: when a tuning cycle produces contradictory verdicts twice, stop
+guessing — make the parameter user-facing and let the field tune it.

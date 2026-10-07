@@ -1,5 +1,12 @@
 # CHANGELOG — valheimmer / InstancedTimer (SunkenCryptTimer through v1.1.8)
 
+## 2026-10-06 — v1.2.4: TextScale config knob (live, no restart)
+
+- Field verdict on v1.2.3: matching the labels exactly reads "small-ish". Instead of
+  another guessed constant, the size is now user-tunable: new `[HUD] TextScale`
+  (default 1.25, range 0.5-3) multiplies the adopted status-label size; changes via
+  the F1 config manager apply on the next HUD update without a restart.
+
 ## 2026-10-06 — v1.2.3: timer text now matches the status labels' on-screen size
 
 - Field test (screenshot measured): v1.2.2 rendered 1.5x the size of the

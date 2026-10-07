@@ -89,6 +89,7 @@ All settings are client-side; changes apply immediately (no restart).
 | HUD | ScanRadiusMeters | 80 | Show the timer within this distance of an entrance |
 | HUD | UpdateIntervalSeconds | 1 | Rescan rate |
 | HUD | HudOffsetY | 170 | Fallback label offset from the top of the screen (px) - normally the label positions itself under the status-effect row |
+| HUD | TextScale | 1.25 | Timer text size relative to the status-effect labels (1 = same size); applies live, no restart |
 | HUD | InstanceNaming | NameAndZone | How the label names the location: Type, NameAndZone ("Odin's Tomb (-70,-21)"), Name, or Zone |
 | Timers | FallbackResetDays | 10 | Assumed interval when VLR's config can't be read — set to your server's actual interval |
 | Rings | Enabled | true | Draw ground rings around nearby instanced dungeons |
