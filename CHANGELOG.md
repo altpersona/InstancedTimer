@@ -1,5 +1,21 @@
 # CHANGELOG — valheimmer / InstancedTimer (SunkenCryptTimer through v1.1.8)
 
+## 2026-10-13 — v1.3.1: field feedback from the swamp — old-world names + honest reset text
+
+- Field verdict on v1.3.0: every location approached in meadows/black forest/swamp
+  reported an EMPTY discover label - the game reserves m_discoverLabel for newer
+  content (Mistlands/Ashlands). Old-world dungeons are now mapped to the game's own
+  localization tokens instead ($location_sunkencrypt = "Sunken Crypts",
+  $location_forestcrypt = "Burial Chamber", $location_mountaincave = "Frost Cave",
+  Dvergr towns/boss, morgen holes), resolved through the loaded language. Eirik's
+  Crypt is dead; the sunken crypt reads "Sunken Crypts" in any language.
+- Field bug report: "said reset ready, it was not". VLR's own code/README explains -
+  resets fire on approach only when unobstructed: player-built pieces/tombstones
+  near the location ("player activity") block the regen (our camp in the swamp),
+  and the check is one-shot per zone load. HUD text now says "regenerates on
+  approach if unobstructed" and the README documents the blocker.
+- Gap fix: DG_ForestCrypt (generator-name fallback) missing from PrettyNames.
+
 ## 2026-10-13 — v1.3.0: in-game names win over generated ones
 
 - Locations the game itself names now display that name in every InstanceNaming

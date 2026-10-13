@@ -91,7 +91,7 @@ namespace InstancedTimer
 
             string text = remainingDays > 0d
                 ? $"{DisplayName(name, result.Value.Uid, result.Value.Position)} - resets in {FormatRemaining(remainingDays)}"
-                : $"{DisplayName(name, result.Value.Uid, result.Value.Position)} - reset ready (regenerates on approach)";
+                : $"{DisplayName(name, result.Value.Uid, result.Value.Position)} - reset ready (regenerates on approach if unobstructed)";
 
             if (InstancedTimerPlugin.CeDebug.Value)
             {
@@ -273,6 +273,10 @@ namespace InstancedTimer
             string resolved = null;
             var location = ZoneRing.FindLocationPrefab(prefabName);
             var label = location != null ? location.m_discoverLabel : null;
+            // Old-world locations ship with an empty discover label; the game
+            // still names them in its dictionaries - fall back to the mapped
+            // token for those.
+            if (string.IsNullOrEmpty(label)) label = ResetTimer.LabelToken(prefabName);
             if (!string.IsNullOrEmpty(label))
             {
                 var text = Localization.instance != null

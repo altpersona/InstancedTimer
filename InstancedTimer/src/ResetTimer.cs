@@ -77,6 +77,7 @@ namespace InstancedTimer
             // name is unresolvable - see Tracker/generator via).
             { "DG_SunkenCrypt", "Sunken Crypt" },
             { "DG_BurialChambers", "Burial Chamber" },
+            { "DG_ForestCrypt", "Burial Chamber" },
             { "DG_TrollCave", "Troll Cave" },
             // Ground locations VLR also stamps and resets on a default server;
             // labeled on the HUD like dungeons but never ringed (ZoneRing).
@@ -112,6 +113,38 @@ namespace InstancedTimer
             if (prefabName.StartsWith("Runestone", StringComparison.Ordinal)) return "Runestone";
             if (prefabName.StartsWith("StoneTowerRuins", StringComparison.Ordinal)) return "Ruined Tower";
             return prefabName;
+        }
+
+        // Prefab name -> the game's own localization token for locations that
+        // ship WITHOUT a discover label (old-world content: meadows through
+        // Mountain biomes leave m_discoverLabel empty, but the game still
+        // carries canonical names in its dictionaries - verified against the
+        // shipped localization: sunkencrypt = "Sunken Crypt", forestcrypt =
+        // "Burial Chamber", mountaincave = "Frost Cave", ...). Resolved through
+        // the loaded language, so non-English players get their names too.
+        private static readonly Dictionary<string, string> LabelTokens = new Dictionary<string, string>
+        {
+            { "SunkenCrypt4", "$location_sunkencrypt" },
+            { "Crypt2", "$location_forestcrypt" },
+            { "Crypt3", "$location_forestcrypt" },
+            { "Crypt4", "$location_forestcrypt" },
+            { "MountainCave02", "$location_mountaincave" },
+            { "Mistlands_DvergrTownEntrance1", "$location_dvergrtown" },
+            { "Mistlands_DvergrTownEntrance2", "$location_dvergrtown" },
+            { "Mistlands_DvergrBossEntrance1", "$location_dvergrboss" },
+            { "MorgenHole1", "$location_morgenhole" },
+            { "MorgenHole2", "$location_morgenhole" },
+            { "MorgenHole3", "$location_morgenhole" },
+            // Generator GameObject names (name-resolution fallback path).
+            { "DG_SunkenCrypt", "$location_sunkencrypt" },
+            { "DG_BurialChambers", "$location_forestcrypt" },
+            { "DG_ForestCrypt", "$location_forestcrypt" },
+        };
+
+        /// <summary>The game's localization token for a prefab, or null where the game ships none.</summary>
+        internal static string LabelToken(string prefabName)
+        {
+            return LabelTokens.TryGetValue(prefabName, out var token) ? token : null;
         }
 
         /// <summary>Effective reset interval in whole in-game days for the given location prefab.</summary>

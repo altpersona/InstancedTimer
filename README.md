@@ -6,7 +6,7 @@ A **client-only** Valheim mod for players on servers that run
 It answers two questions at a glance:
 
 - **"When does this dungeon reset?"** — a HUD countdown
-  (*"Sunken Crypt — resets in 2d 14h"*) whenever you are near a dungeon entrance:
+  (*"Sunken Crypts — resets in 2d 14h"*) whenever you are near a dungeon entrance:
   sunken crypts, burial chambers, troll caves, frost caves, goblin camps, dvergr mines,
   Hildir's dungeons, Ashlands fortresses, and more.
 - **"How close is too close?"** — a workbench-style **ground ring** around each nearby
@@ -50,10 +50,12 @@ graves, shipwrecks and ruins get counted down too. A single line appears in the
 top-right corner of the HUD, right below the status-effect row (Rested/Wet), in the
 same small text size:
 
-- `Sunken Crypt - resets in 2d 14h` — the dungeon still holds its loot.
-- `Sunken Crypt - reset ready (regenerates on approach)` — the timer has elapsed.
-  VLR only regenerates a dungeon **when a player walks within 100 m** of it after the
-  timer expires, so it will pop fresh the moment someone (maybe you) shows up.
+- `Sunken Crypts - resets in 2d 14h` — the dungeon still holds its loot.
+- `Sunken Crypts - reset ready (regenerates on approach if unobstructed)` — the timer
+  has elapsed. VLR regenerates a location **when a player walks within 100 m** of it
+  after the timer expires — but only if nothing blocks it: player-built pieces or
+  tombstones near the location ("player activity") postpone the reset, and the check
+  runs once per zone load. If it says ready and stays cleared, that block is why.
 
 Timers keep running while the server is empty (the world clock advances 24/7 while the
 server process runs), and the countdown is computed from live world time — log back in
@@ -90,7 +92,7 @@ All settings are client-side; changes apply immediately (no restart).
 | HUD | UpdateIntervalSeconds | 1 | Rescan rate |
 | HUD | HudOffsetY | 170 | Fallback label offset from the top of the screen (px) - normally the label positions itself under the status-effect row |
 | HUD | TextScale | 1.25 | Timer text size relative to the status-effect labels (1 = same size); applies live, no restart |
-| HUD | InstanceNaming | NameAndZone | How the label names the location: Type, NameAndZone ("Sunken Crypt (-70,-21)"), Name, or Zone. Locations with a vanilla discover label always show that in-game name; generated names apply only to unnamed locations |
+| HUD | InstanceNaming | NameAndZone | How the label names the location: Type, NameAndZone ("Sunken Crypts (-70,-21)"), Name, or Zone. Locations with a vanilla discover label always show that in-game name; generated names apply only to unnamed locations |
 | Timers | FallbackResetDays | 10 | Assumed interval when VLR's config can't be read — set to your server's actual interval |
 | Rings | Enabled | true | Draw ground rings around nearby instanced dungeons |
 | Rings | ShowRadiusMeters | 100 | Show a ring while within this distance of the entrance |
