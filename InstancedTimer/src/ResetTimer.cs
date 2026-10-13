@@ -109,9 +109,12 @@ namespace InstancedTimer
         {
             if (PrettyNames.TryGetValue(prefabName, out var pretty)) return pretty;
             // Families with many numbered variants (runestones per biome,
-            // black-forest ruined towers) collapse to one friendly name.
+            // ruined towers, abandoned houses) collapse to one friendly name.
             if (prefabName.StartsWith("Runestone", StringComparison.Ordinal)) return "Runestone";
             if (prefabName.StartsWith("StoneTowerRuins", StringComparison.Ordinal)) return "Ruined Tower";
+            if (prefabName.StartsWith("WoodHouse", StringComparison.Ordinal)) return "Abandoned House";
+            if (prefabName.StartsWith("StoneHouse", StringComparison.Ordinal)) return "Stone House";
+            if (prefabName.StartsWith("Ruin", StringComparison.Ordinal)) return "Ruin";
             return prefabName;
         }
 

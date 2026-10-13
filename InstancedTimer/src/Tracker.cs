@@ -188,6 +188,18 @@ namespace InstancedTimer
                         via = "generator";
                     }
                 }
+                if (IsIgnored(prefabName))
+                {
+                    // VLR stamps some locations it then hard-ignores (spawn
+                    // temple, boss altars) - a countdown over them would be
+                    // noise. Skipped entirely: no label, no ring.
+                    if (_loggedNames.Add((int)zdo.m_uid.ID))
+                    {
+                        InstancedTimerPlugin.Log.LogInfo(
+                            $"ignored location: '{prefabName}' (on IgnoreLocations list)");
+                    }
+                    continue;
+                }
                 if (_loggedNames.Add((int)zdo.m_uid.ID))
                 {
                     InstancedTimerPlugin.Log.LogInfo(
@@ -199,6 +211,27 @@ namespace InstancedTimer
                     proxy.transform.position,
                     zdo.m_uid.ID));
             }
+        }
+
+        // Parsed from CeIgnoreLocations; rebuilt when the config string changes
+        // (config edits via F1 apply on the next scan, no restart).
+        private static string _ignoreRaw;
+        private static HashSet<string> _ignoreSet = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        private static bool IsIgnored(string prefabName)
+        {
+            var raw = InstancedTimerPlugin.CeIgnoreLocations.Value;
+            if (raw != _ignoreRaw)
+            {
+                _ignoreRaw = raw;
+                _ignoreSet = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                foreach (var part in raw.Split(','))
+                {
+                    var name = part.Trim();
+                    if (name.Length > 0) _ignoreSet.Add(name);
+                }
+            }
+            return prefabName != null && _ignoreSet.Contains(prefabName);
         }
 
         /// <summary>Fallback name lookup: match the proxy position to a known zone location instance.</summary>
@@ -231,25 +264,26 @@ namespace InstancedTimer
         /// </summary>
         /// <summary>
         /// HUD display name for a dungeon instance, per the InstanceNaming
-        /// config: type name, proper-noun name + zone coords, name only, or
-        /// zone only. Wherever the game itself names the location (discover
-        /// label, e.g. "Sunken Crypt"), that in-game name wins over both the
-        /// generated fun name and the type-name mapping; fun names remain
-        /// only for instances the game leaves unnamed (ground features).
+        /// config. The tier/species name always leads - the game's own name
+        /// (discover label or mapped token, e.g. "Sunken Crypts") where one
+        /// exists, else the friendly type mapping ("Grave"). The generated
+        /// per-instance fun name ("Loki's Barrow") is appended after the tier
+        /// in the name-bearing modes, so same-type neighbors stay tellable
+        /// apart; Type and Zone modes show the tier alone.
         /// </summary>
         private static string DisplayName(string prefabName, long uid, Vector3 position)
         {
-            var inGame = InGameName(prefabName);
+            var tier = InGameName(prefabName) ?? ResetTimer.PrettyName(prefabName);
             switch (InstancedTimerPlugin.CeInstanceNaming.Value)
             {
                 case InstancedTimerPlugin.InstanceNaming.Name:
-                    return inGame ?? DungeonNames.Name(uid, prefabName);
+                    return $"{tier} · {DungeonNames.Name(uid, prefabName)}";
                 case InstancedTimerPlugin.InstanceNaming.Zone:
-                    return $"{inGame ?? ResetTimer.PrettyName(prefabName)} {DungeonNames.Zone(position)}";
+                    return $"{tier} {DungeonNames.Zone(position)}";
                 case InstancedTimerPlugin.InstanceNaming.NameAndZone:
-                    return $"{inGame ?? DungeonNames.Name(uid, prefabName)} {DungeonNames.Zone(position)}";
+                    return $"{tier} · {DungeonNames.Name(uid, prefabName)} {DungeonNames.Zone(position)}";
                 default:
-                    return inGame ?? ResetTimer.PrettyName(prefabName);
+                    return tier;
             }
         }
 

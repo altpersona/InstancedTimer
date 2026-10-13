@@ -1,5 +1,22 @@
 # CHANGELOG — valheimmer / InstancedTimer (SunkenCryptTimer through v1.1.8)
 
+## 2026-10-13 — v1.3.2: tier name leads, fun name appends
+
+- Field feedback on v1.3.1: with real names replacing fun names, same-type neighbors
+  read identically ("Sunken Crypts (-71,-21)" vs "(-70,-22)") - the fun name had been
+  carrying the instance identity all along (field data: "Eirik's"/"Loki's" were both
+  SunkenCrypt4; "Thor's Crypt" was a Grave1 - a different species entirely). Name modes
+  now read "tier · instance": "Sunken Crypts · Loki's Barrow (-71,-21)". Type and Zone
+  modes show the tier alone.
+- Coverage hardening from the same field log: prefix rules for WoodHouse* (8-13 seen
+  beyond the mapped 1-7), StoneHouse*, and Ruin* - previously raw prefab names as tier.
+  Every species now resolves a tier via game token -> friendly map -> prefix rule ->
+  raw name; the once-per-prefab log line surfaces anything unmapped.
+- New `[General] IgnoreLocations` (default "StartTemple,Eikthyrnir,WoodHouse6" - VLR's
+  documented hard-ignored set): locations VLR stamps but never resets now get no label
+  and no ring (the spawn temple and boss altars were showing countdowns over nothing).
+  Comma-separated, case-insensitive, applies live; each skip is logged once per site.
+
 ## 2026-10-13 — v1.3.1: field feedback from the swamp — old-world names + honest reset text
 
 - Field verdict on v1.3.0: every location approached in meadows/black forest/swamp

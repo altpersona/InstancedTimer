@@ -17,7 +17,7 @@ namespace InstancedTimer
     {
         public const string PluginGuid = "lan124.InstancedTimer";
         public const string PluginName = "InstancedTimer";
-        public const string PluginVersion = "1.3.1";
+        public const string PluginVersion = "1.3.2";
 
         internal static ManualLogSource Log;
 
@@ -33,6 +33,9 @@ namespace InstancedTimer
         internal static ConfigEntry<float> CeHudOffsetY;
         internal static ConfigEntry<float> CeTextScale;
         internal static ConfigEntry<int> CeFallbackResetDays;
+        // Prefab names never labeled/rung: VLR stamps these but (per its docs)
+        // hard-ignores them, so any countdown over them is noise.
+        internal static ConfigEntry<string> CeIgnoreLocations;
         internal static ConfigEntry<bool> CeRingEnabled;
         internal static ConfigEntry<float> CeRingShowRadius;
         // How the HUD line names the dungeon instance (F1-configurable).
@@ -62,6 +65,10 @@ namespace InstancedTimer
                 "Assumed reset interval (in-game days) when Venture Location Reset is not installed on this " +
                 "client and its synced config cannot be read. Set this to match the server you play on. " +
                 "Ignored whenever VLR's own (server-synced) config is available.");
+            CeIgnoreLocations = Config.Bind("General", "IgnoreLocations", "StartTemple,Eikthyrnir,WoodHouse6",
+                "Prefab names (comma-separated) never labeled or ringed - locations VLR " +
+                "stamps but never resets: the spawn temple, boss altars. Case-insensitive; " +
+                "changes apply on the next scan, no restart.");
             CeRingEnabled = Config.Bind("Rings", "Enabled", true,
                 "Draw a workbench-style ground ring around each nearby instanced dungeon (crypts, burial " +
                 "chambers, troll caves, ...), sized to the radius Venture Location Reset checks for it " +
@@ -70,11 +77,12 @@ namespace InstancedTimer
                 "Show a dungeon's ring while the player is within this distance of its entrance " +
                 "(float, meters). 100 matches Venture Location Reset's own reset-trigger distance.");
             CeInstanceNaming = Config.Bind("HUD", "InstanceNaming", InstanceNaming.NameAndZone,
-                "How the timer names the dungeon: Type (vanilla type name), NameAndZone " +
-                "(\"Sunken Crypt (-70,-21)\" - zone readable on the minimap), Name, or Zone. " +
-                "Locations the game itself names (discover label, e.g. \"Sunken Crypt\") use " +
-                "that in-game name in every mode; generated names like \"Odin's Tomb\" apply " +
-                "only to instances the game leaves unnamed.");
+                "How the timer names the dungeon. Every mode leads with the location's " +
+                "tier name - the game's own (\"Sunken Crypts\", \"Burial Chamber\") where one " +
+                "exists, else the friendly mapping (\"Grave\", \"Runestone\"). NameAndZone " +
+                "(default) and Name also append the generated per-instance name so same-type " +
+                "neighbors stay tellable apart: \"Sunken Crypts · Loki's Barrow (-70,-21)\". " +
+                "Type and Zone show the tier alone.");
 
             gameObject.AddComponent<Tracker>();
 

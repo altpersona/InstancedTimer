@@ -50,8 +50,10 @@ graves, shipwrecks and ruins get counted down too. A single line appears in the
 top-right corner of the HUD, right below the status-effect row (Rested/Wet), in the
 same small text size:
 
-- `Sunken Crypts - resets in 2d 14h` — the dungeon still holds its loot.
-- `Sunken Crypts - reset ready (regenerates on approach if unobstructed)` — the timer
+- `Sunken Crypts · Loki's Barrow (-71,-21) - resets in 2d 14h` — the dungeon still holds
+  its loot. The tier name leads (the game's own where one exists), the generated instance
+  name and zone coords follow, so same-type neighbors stay tellable apart.
+- `Sunken Crypts · Loki's Barrow (-71,-21) - reset ready (regenerates on approach if unobstructed)` — the timer
   has elapsed. VLR regenerates a location **when a player walks within 100 m** of it
   after the timer expires — but only if nothing blocks it: player-built pieces or
   tombstones near the location ("player activity") postpone the reset, and the check
@@ -88,11 +90,12 @@ All settings are client-side; changes apply immediately (no restart).
 |---|---|---|---|
 | General | Enabled | true | Master switch |
 | General | DebugLogging | false | Verbose scanner logging |
+| General | IgnoreLocations | StartTemple,Eikthyrnir,WoodHouse6 | Prefab names (comma-separated) never labeled or ringed — things VLR stamps but never resets (spawn temple, boss altars) |
 | HUD | ScanRadiusMeters | 80 | Show the timer within this distance of an entrance |
 | HUD | UpdateIntervalSeconds | 1 | Rescan rate |
 | HUD | HudOffsetY | 170 | Fallback label offset from the top of the screen (px) - normally the label positions itself under the status-effect row |
 | HUD | TextScale | 1.25 | Timer text size relative to the status-effect labels (1 = same size); applies live, no restart |
-| HUD | InstanceNaming | NameAndZone | How the label names the location: Type, NameAndZone ("Sunken Crypts (-70,-21)"), Name, or Zone. Locations with a vanilla discover label always show that in-game name; generated names apply only to unnamed locations |
+| HUD | InstanceNaming | NameAndZone | How the label names the location. Every mode leads with the tier name (the game's own where one exists: "Sunken Crypts", "Burial Chamber"); NameAndZone/Name append the generated instance name + zone: "Sunken Crypts · Loki's Barrow (-70,-21)". Type/Zone show the tier alone |
 | Timers | FallbackResetDays | 10 | Assumed interval when VLR's config can't be read — set to your server's actual interval |
 | Rings | Enabled | true | Draw ground rings around nearby instanced dungeons |
 | Rings | ShowRadiusMeters | 100 | Show a ring while within this distance of the entrance |
