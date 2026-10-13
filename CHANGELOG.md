@@ -1,5 +1,20 @@
 # CHANGELOG — valheimmer / InstancedTimer (SunkenCryptTimer through v1.1.8)
 
+## 2026-10-13 — v1.3.0: in-game names win over generated ones
+
+- Locations the game itself names now display that name in every InstanceNaming
+  mode: the Location prefab's `m_discoverLabel` ("$location_sunkencrypt") run
+  through the loaded language ("Sunken Crypt") - verified against the game's own
+  localization (`location_forestcrypt` = "Burial Chamber", `location_mountaincave`
+  = "Frost Cave", Dvergr towns, morgen holes, ...). Generated "Odin's Tomb"-style
+  names remain only for instances the game leaves unnamed (graves, huts, trees).
+- Resolution is logged once per prefab ("in-game name: 'SunkenCrypt4' -> 'Sunken
+  Crypt' (label '$location_sunkencrypt')") so coverage is visible in LogOutput.log.
+- Build repairs after the 2026-10-04 Steam move: default GameDir now uses the
+  stable ~/.steam/steam symlink (debian-installation path died), and build.sh
+  prefers dotnet from PATH (~/.dotnet/dotnet moved to a system install). New
+  reference: assembly_guiutils.dll (where Localization lives in this build).
+
 ## 2026-10-06 — v1.2.4: TextScale config knob (live, no restart)
 
 - Field verdict on v1.2.3: matching the labels exactly reads "small-ish". Instead of

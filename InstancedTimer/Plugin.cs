@@ -17,7 +17,7 @@ namespace InstancedTimer
     {
         public const string PluginGuid = "lan124.InstancedTimer";
         public const string PluginName = "InstancedTimer";
-        public const string PluginVersion = "1.2.4";
+        public const string PluginVersion = "1.3.0";
 
         internal static ManualLogSource Log;
 
@@ -71,8 +71,10 @@ namespace InstancedTimer
                 "(float, meters). 100 matches Venture Location Reset's own reset-trigger distance.");
             CeInstanceNaming = Config.Bind("HUD", "InstanceNaming", InstanceNaming.NameAndZone,
                 "How the timer names the dungeon: Type (vanilla type name), NameAndZone " +
-                "(\"Odin's Tomb (-70,-21)\" - name deterministic per instance, zone readable on " +
-                "the minimap), Name, or Zone.");
+                "(\"Sunken Crypt (-70,-21)\" - zone readable on the minimap), Name, or Zone. " +
+                "Locations the game itself names (discover label, e.g. \"Sunken Crypt\") use " +
+                "that in-game name in every mode; generated names like \"Odin's Tomb\" apply " +
+                "only to instances the game leaves unnamed.");
 
             gameObject.AddComponent<Tracker>();
 

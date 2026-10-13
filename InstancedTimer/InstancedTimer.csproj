@@ -15,13 +15,15 @@
     <ImplicitUsings>disable</ImplicitUsings>
     <AssemblyName>InstancedTimer</AssemblyName>
     <RootNamespace>InstancedTimer</RootNamespace>
-    <Version>1.2.4</Version>
+    <Version>1.3.0</Version>
     <DebugType>embedded</DebugType>
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
 
-    <!-- Machine-specific install locations (lan-124). -->
-    <GameDir Condition="'$(GameDir)' == ''">/home/default/.steam/debian-installation/steamapps/common/Valheim</GameDir>
+    <!-- Machine-specific install locations (lan-124). ~/.steam/steam is the
+         stable symlink that survives Steam reinstalling its library dir
+         (debian-installation vanished in the 2026-10-04 Steam move). -->
+    <GameDir Condition="'$(GameDir)' == ''">/home/default/.steam/steam/steamapps/common/Valheim</GameDir>
     <ProfileDir Condition="'$(ProfileDir)' == ''">/home/default/.local/share/com.kesomannen.gale/valheim/profiles/StormerValheim</ProfileDir>
     <ManagedDir>$(GameDir)/valheim_Data/Managed</ManagedDir>
     <BepInExCoreDir>$(ProfileDir)/BepInEx/core</BepInExCoreDir>
@@ -38,6 +40,11 @@
     </Reference>
     <Reference Include="assembly_utils">
       <HintPath>$(ManagedDir)/assembly_utils.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <!-- Localization (m_discoverLabel -> loaded language) lives here. -->
+    <Reference Include="assembly_guiutils">
+      <HintPath>$(ManagedDir)/assembly_guiutils.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <!-- ZoneSystem.ZoneLocation.m_prefab is a SoftReference<GameObject>; the

@@ -231,23 +231,69 @@ namespace InstancedTimer
         /// </summary>
         /// <summary>
         /// HUD display name for a dungeon instance, per the InstanceNaming
-        /// config: type name, generated proper-noun name + zone coords, name
-        /// only, or zone only. Name is deterministic - same uid, same name,
-        /// every machine and session.
+        /// config: type name, proper-noun name + zone coords, name only, or
+        /// zone only. Wherever the game itself names the location (discover
+        /// label, e.g. "Sunken Crypt"), that in-game name wins over both the
+        /// generated fun name and the type-name mapping; fun names remain
+        /// only for instances the game leaves unnamed (ground features).
         /// </summary>
         private static string DisplayName(string prefabName, long uid, Vector3 position)
         {
+            var inGame = InGameName(prefabName);
             switch (InstancedTimerPlugin.CeInstanceNaming.Value)
             {
                 case InstancedTimerPlugin.InstanceNaming.Name:
-                    return DungeonNames.Name(uid, prefabName);
+                    return inGame ?? DungeonNames.Name(uid, prefabName);
                 case InstancedTimerPlugin.InstanceNaming.Zone:
-                    return $"{ResetTimer.PrettyName(prefabName)} {DungeonNames.Zone(position)}";
+                    return $"{inGame ?? ResetTimer.PrettyName(prefabName)} {DungeonNames.Zone(position)}";
                 case InstancedTimerPlugin.InstanceNaming.NameAndZone:
-                    return $"{DungeonNames.Name(uid, prefabName)} {DungeonNames.Zone(position)}";
+                    return $"{inGame ?? DungeonNames.Name(uid, prefabName)} {DungeonNames.Zone(position)}";
                 default:
-                    return ResetTimer.PrettyName(prefabName);
+                    return inGame ?? ResetTimer.PrettyName(prefabName);
             }
+        }
+
+        // In-game (discover-label) names per prefab; null = none/unresolvable.
+        private static readonly Dictionary<string, string> InGameNames = new Dictionary<string, string>();
+        private static readonly HashSet<string> LoggedInGameNames = new HashSet<string>();
+
+        /// <summary>
+        /// The game's own name for a location prefab: the Location component's
+        /// m_discoverLabel ("$location_sunkencrypt") run through the loaded
+        /// language ("Sunken Crypt") - the same string the vanilla game uses
+        /// when it names the location. Null when the prefab carries no label
+        /// (most ground features: graves, huts, trees) or the label fails to
+        /// resolve. Cached per prefab; the resolution is logged once per
+        /// prefab so names are diagnosable from LogOutput.log.
+        /// </summary>
+        private static string InGameName(string prefabName)
+        {
+            if (InGameNames.TryGetValue(prefabName, out var cached)) return cached;
+
+            string resolved = null;
+            var location = ZoneRing.FindLocationPrefab(prefabName);
+            var label = location != null ? location.m_discoverLabel : null;
+            if (!string.IsNullOrEmpty(label))
+            {
+                var text = Localization.instance != null
+                    ? Localization.instance.Localize(label)
+                    : label;
+                // Localize returns the token unchanged when the word is
+                // missing; a non-token label is already human text as-is.
+                if (!string.IsNullOrEmpty(text) && !text.StartsWith("$", StringComparison.Ordinal))
+                {
+                    resolved = text;
+                }
+            }
+
+            if (LoggedInGameNames.Add(prefabName))
+            {
+                InstancedTimerPlugin.Log.LogInfo(resolved != null
+                    ? $"in-game name: '{prefabName}' -> '{resolved}' (label '{label}')"
+                    : $"in-game name: '{prefabName}' none (label '{label ?? ""}')");
+            }
+            InGameNames[prefabName] = resolved;
+            return resolved;
         }
 
         internal static double CurrentFractionalDay()

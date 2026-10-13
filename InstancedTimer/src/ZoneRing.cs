@@ -292,7 +292,7 @@ namespace InstancedTimer
         // miss rebuilds the registry once before giving up on it.
         private static Dictionary<string, Location> _locationPrefabs;
 
-        private static Location FindLocationPrefab(string name)
+        internal static Location FindLocationPrefab(string name)
         {
             if (_locationPrefabs == null || !_locationPrefabs.ContainsKey(name))
             {
