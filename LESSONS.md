@@ -143,3 +143,45 @@ expose the remaining taste as a live config entry (`TextScale`, 1.25 default,
 0.5-3 range) that applies without a restart.
 Prevent: when a tuning cycle produces contradictory verdicts twice, stop
 guessing — make the parameter user-facing and let the field tune it.
+
+## [2026-10-13] Old-world locations ship EMPTY discover labels — game names live in localization tokens
+Symptom: v1.3.0's discoverLabel-first naming still showed fun names ("Eirik's Crypt")
+on every swamp/black-forest dungeon; field log reported `in-game name: 'SunkenCrypt4'
+none (label '')` for all old-world species.
+Root cause: Valheim populates `Location.m_discoverLabel` only on newer content
+(Mistlands/Ashlands: dvergrtown, morgenhole, mausoleum, ...). Old-world names exist
+only as localization words in resources.assets (`$location_sunkencrypt` =
+"Sunken Crypts", `$location_forestcrypt` = "Burial Chamber",
+`$location_mountaincave` = "Frost Cave"). Bonus trap: `grep -o` substring matching
+displayed "Sunken Crypt" — the real string is plural "Sunken Crypts".
+Fix: `ResetTimer.LabelTokens` maps prefab → token; `Tracker.InGameName` falls back to
+it and resolves through the loaded language. Verified rendered in-game.
+Prevent: Treat a game field as best-case, not contract — dump what the shipped build
+actually contains (grep the SoftRef bundles / localization asset, or log it live in
+the field) before building a feature on it.
+
+## [2026-10-13] Localization lives in assembly_guiutils.dll, not assembly_valheim.dll
+Symptom: No `Localization` type found in assembly_valheim; code referencing it won't
+compile against the valheim references alone.
+Root cause: This build splits game code — `Localization` (with
+`Localize(string)`, `instance`) is in `Managed/assembly_guiutils.dll`.
+`Assembly-CSharp.dll` is just sample leftovers; assembly_valheim has
+Location/ZoneSystem/Minimap/etc.
+Fix: csproj references assembly_guiutils.dll; resolve tokens via
+`Localization.instance.Localize(token)`.
+Prevent: When a game type is missing from the "main" assembly, sweep ALL
+`Managed/*.dll` with `tools/apiscan` before concluding the API doesn't exist.
+
+## [2026-10-13] VLR resets are approach-triggered but player-activity-blocked — HUD claims must match
+Symptom: Field report "it said reset ready. It was not" — the HUD promised
+"regenerates on approach" while standing in an expired, still-cleared crypt.
+Root cause: VLR regenerates on approach ONLY when unobstructed: player-built pieces
+and tombstones near the location ("player activity", range scales with location size)
+block the reset, and the check runs once per zone load. The user's swamp camp sits
+inside several crypt check radii. Source: VLR README + installed DLL
+(`LocalPlayerBeyondRange`, `WaitForReset` coroutine in VentureValheim.LocationReset).
+Fix: HUD text changed to "regenerates on approach if unobstructed"; README documents
+the blocker and the one-shot-per-zone-load behavior.
+Prevent: When the mod narrates ANOTHER mod's behavior, read that mod's installed
+code/README (plugins dir ships both) and mirror its real semantics, not the
+intuitive ones.
